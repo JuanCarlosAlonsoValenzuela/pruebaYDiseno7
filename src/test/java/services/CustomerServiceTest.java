@@ -91,7 +91,7 @@ public class CustomerServiceTest extends AbstractTest {
 	// Testeado
 	@Test
 	public void testCreditCardNumber() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Assert.isTrue(CustomerService.validateCreditCardNumber("4536000785192332"));
 		super.authenticate(null);
 	}
@@ -99,34 +99,34 @@ public class CustomerServiceTest extends AbstractTest {
 	// Testeado
 	@Test
 	public void testCreditCardNumberInvalid() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Assert.isTrue(!CustomerService.validateCreditCardNumber("4536000785192337"));
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testShowFixUpTaskLoggedCustomer() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
-		Assert.isTrue(customer.getFixUpTasks().size() == 4);
+		Assert.isTrue(customer.getFixUpTasks().size() > 0);
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testShowFixUpTaskPerCustomer() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = new Customer();
-		customer = this.customerService.getCustomerByUsername("PacoCustomer");
-		Assert.isTrue(this.customerService.showFixUpTasks(customer.getId()).size() == 4);
+		customer = this.customerService.getCustomerByUsername("customer1");
+		Assert.isTrue(this.customerService.showFixUpTasks(customer.getId()).size() > 0);
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testGetFixUpTask() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = new Customer();
 		FixUpTask fixUpTask = new FixUpTask();
-		customer = this.customerService.getCustomerByUsername("PacoCustomer");
+		customer = this.customerService.getCustomerByUsername("customer1");
 		fixUpTask = customer.getFixUpTasks().get(0);
 		Assert.isTrue(this.customerService.getFixUpTask(fixUpTask.getId()).getDescription() == this.fixUpTaskService.findOne(fixUpTask.getId()).getDescription());
 		super.authenticate(null);
@@ -135,7 +135,7 @@ public class CustomerServiceTest extends AbstractTest {
 	// Tested
 	@Test
 	public void testCreateFixUpTask() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.YEAR, 2018);
@@ -160,10 +160,10 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testUpdateFixUpTask() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = new Customer();
 		FixUpTask fixUpTask = new FixUpTask();
-		customer = this.customerService.getCustomerByUsername("PacoCustomer");
+		customer = this.customerService.getCustomerByUsername("customer1");
 		fixUpTask = customer.getFixUpTasks().get(0);
 
 		FixUpTask res = this.customerService.getFixUpTask(fixUpTask.getId());
@@ -176,7 +176,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testDeleteFixUpTask() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
 		Customer loggedCustomer = this.customerService.securityAndCustomer();
 		FixUpTask fixUpTask = loggedCustomer.getFixUpTasks().get(0);
@@ -189,9 +189,9 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testShowComplaints() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
-		Assert.isTrue(this.customerService.showComplaints().size() != 11);
+		Assert.isTrue(this.customerService.showComplaints().size() > 0);
 		super.authenticate(null);
 	}
 
@@ -200,7 +200,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 		Customer customer = new Customer();
 		FixUpTask fixUpTask = new FixUpTask();
-		customer = this.customerService.getCustomerByUsername("PacoCustomer");
+		customer = this.customerService.getCustomerByUsername("customer1");
 		fixUpTask = customer.getFixUpTasks().get(0);
 		List<Complaint> complaints = new ArrayList<Complaint>();
 		Complaint complaint = new Complaint();
@@ -208,18 +208,18 @@ public class CustomerServiceTest extends AbstractTest {
 		complaints = (List<Complaint>) fixUpTask.getComplaints();
 		complaint = complaints.get(0);
 
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Assert.isTrue(this.customerService.getComplaint(complaint.getId()).getDescription() == this.complaintService.findOne(complaint.getId()).getDescription());
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testCreateComplaint() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
 		Customer customer = new Customer();
 		FixUpTask fixUpTask = new FixUpTask();
-		customer = this.customerService.getCustomerByUsername("PacoCustomer");
+		customer = this.customerService.getCustomerByUsername("customer1");
 		fixUpTask = customer.getFixUpTasks().get(0);
 
 		FixUpTask res = this.customerService.getFixUpTask(fixUpTask.getId());
@@ -234,15 +234,15 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testShowApplications() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
-		Assert.isTrue(this.customerService.showApplications().size() != 9);
+		Assert.isTrue(this.customerService.showApplications().size() > 0);
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testEditApplication() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		List<Application> la = (List<Application>) this.applicationService.findAll();
 		Application res = la.get(1);
 		CreditCard creditCard = new CreditCard();
@@ -261,7 +261,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testCreateNote() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		List<Report> lr = this.reportService.findAll();
 		Report r = lr.get(0);
 		Note note = this.customerService.createNote(r, "hello", new ArrayList<String>());
@@ -273,7 +273,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testAddComent() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
 		List<Note> notes = new ArrayList<Note>();
 		notes = this.noteService.findAll();
@@ -288,7 +288,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testShowEndorsments() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
 		Assert.isTrue(this.customerService.showEndorsments().size() == 2);
 		super.authenticate(null);
@@ -296,7 +296,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testGetEndorsment() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
 		List<Endorsement> le = (List<Endorsement>) this.endorsmentService.findAll();
 		Endorsement e = le.get(0);
@@ -306,7 +306,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testUpdateEndorsment() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
 		List<Endorsement> le = (List<Endorsement>) this.endorsmentService.findAll();
 		Endorsement res = le.get(0);
@@ -326,18 +326,18 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testDeleteEndorsment() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
 		List<Endorsement> le = (List<Endorsement>) this.endorsmentService.findAll();
 		Endorsement res = le.get(0);
 		this.customerService.deleteEndorsment(res);
-		Assert.isTrue(customer.getEndorsements().contains(res));
+		Assert.isTrue(!customer.getEndorsements().contains(res));
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testShowReport() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		List<Report> lr = this.reportService.findAll();
 		Report res = lr.get(0);
 		Assert.notNull(res);
@@ -346,7 +346,7 @@ public class CustomerServiceTest extends AbstractTest {
 
 	@Test
 	public void testListReports() {
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		Customer customer = this.customerService.securityAndCustomer();
 		List<Complaint> complaints = (List<Complaint>) this.customerService.showComplaints();
 		Assert.notNull(this.customerService.listReports(complaints.get(0)));

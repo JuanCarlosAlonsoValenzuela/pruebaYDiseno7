@@ -27,7 +27,7 @@ public class SectionServiceTest extends AbstractTest {
 
 	@Test
 	public void testSaveSection() {
-		this.authenticate("PepeHW");
+		this.authenticate("handyWorker1");
 
 		Section section = this.sectionService.create("Section", "text", 10);
 		Section saved = this.sectionService.save(section);
