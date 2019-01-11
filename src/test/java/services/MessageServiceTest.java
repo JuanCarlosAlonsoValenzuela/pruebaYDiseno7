@@ -45,10 +45,10 @@ public class MessageServiceTest extends AbstractTest {
 
 	@Test
 	public void testSaveMessage() {
-		this.authenticate("davidAdmin");
+		this.authenticate("admin1");
 
-		Admin admin = this.adminService.getAdminByUsername("davidAdmin");
-		HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
+		Admin admin = this.adminService.getAdminByUsername("admin1");
+		//HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
 
 		Message message = this.messageService.create("subject", "body", Priority.LOW, admin);
 		Message saved = this.messageService.save(message);
@@ -64,13 +64,13 @@ public class MessageServiceTest extends AbstractTest {
 
 	@Test
 	public void testSendMessage() {
-		this.authenticate("davidAdmin");
+		this.authenticate("admin1");
 
 		Admin admin = new Admin();
-		admin = this.adminService.getAdminByUsername("davidAdmin");
+		admin = this.adminService.getAdminByUsername("admin1");
 
 		HandyWorker handyWorker = new HandyWorker();
-		handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
+		//handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
 
 		Message message = this.messageService.create("subject", "body", Priority.HIGH, admin);
 		Message saved = this.messageService.save(message);
@@ -80,27 +80,31 @@ public class MessageServiceTest extends AbstractTest {
 		List<Message> receivedMessages = received.getMessages();
 
 		List<Message> result = new ArrayList<>();
-		for (Message m : receivedMessages)
-			if (m.getBody().equals(message.getBody()) && m.getSubject().equals(message.getSubject()) && m.getSender().equals(message.getSender()) && m.getReceiver().equals(message.getReceiver()))
+		for (Message m : receivedMessages) {
+			if (m.getBody().equals(message.getBody()) && m.getSubject().equals(message.getSubject()) && m.getSender().equals(message.getSender()) && m.getReceiver().equals(message.getReceiver())) {
 				result.add(m);
+			}
+		}
 		Assert.isTrue(result.size() != 0);
 
 		Box received2 = this.boxService.getRecievedBoxByActor(admin);
 		List<Message> receivedMessages2 = received.getMessages();
 
-		for (Message m : receivedMessages2)
-			if (m.getBody().equals(message.getBody()) && m.getSubject().equals(message.getSubject()) && m.getSender().equals(message.getSender()) && m.getReceiver().equals(message.getReceiver()))
+		for (Message m : receivedMessages2) {
+			if (m.getBody().equals(message.getBody()) && m.getSubject().equals(message.getSubject()) && m.getSender().equals(message.getSender()) && m.getReceiver().equals(message.getReceiver())) {
 				result.add(m);
+			}
+		}
 
 		this.authenticate(null);
 	}
 
 	@Test
 	public void testUpdateMessage() {	//TODO
-		this.authenticate("davidAdmin");
+		this.authenticate("admin1");
 
-		Admin admin = this.adminService.getAdminByUsername("davidAdmin");
-		HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
+		Admin admin = this.adminService.getAdminByUsername("admin1");
+		//HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
 
 		Message message = this.messageService.create("subject", "body", Priority.LOW, admin);
 		Message saved = this.messageService.save(message);
@@ -117,8 +121,8 @@ public class MessageServiceTest extends AbstractTest {
 
 	@Test
 	public void testDeleteMessage() {
-		this.authenticate("PacoCustomer");
-		Customer customer = this.customerService.getCustomerByUsername("PacoCustomer");
+		this.authenticate("customer1");
+		Customer customer = this.customerService.getCustomerByUsername("customer1");
 		Box recievedBox = this.boxService.getRecievedBoxByActor(customer);
 
 		List<Message> messagesReceived = recievedBox.getMessages();

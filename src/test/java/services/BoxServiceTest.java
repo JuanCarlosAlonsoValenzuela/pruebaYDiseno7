@@ -38,9 +38,9 @@ public class BoxServiceTest extends AbstractTest {
 	public void testGetRecievedBoxByActor() {
 		Actor actor = new Actor();
 		Box box = new Box();
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
-		actor = this.actorService.getActorByUsername("PacoCustomer");
+		actor = this.actorService.getActorByUsername("customer1");
 		box = this.boxService.getRecievedBoxByActor(actor);
 		Assert.isTrue(box.getName().equals("Received messages"));
 		super.authenticate(null);
@@ -50,9 +50,9 @@ public class BoxServiceTest extends AbstractTest {
 	public void testGetSpamBoxByActor() {
 		Actor actor = new Actor();
 		Box box = new Box();
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
-		actor = this.actorService.getActorByUsername("PacoCustomer");
+		actor = this.actorService.getActorByUsername("customer1");
 		box = this.boxService.getSpamBoxByActor(actor);
 		Assert.isTrue(box.getName().equals("Spam"));
 		super.authenticate(null);
@@ -62,9 +62,9 @@ public class BoxServiceTest extends AbstractTest {
 	public void testGetTrashBoxByActor() {
 		Actor actor = new Actor();
 		Box box = new Box();
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 
-		actor = this.actorService.getActorByUsername("PacoCustomer");
+		actor = this.actorService.getActorByUsername("customer1");
 		box = this.boxService.getTrashBoxByActor(actor);
 		Assert.isTrue(box.getName().equals("Trash"));
 		super.authenticate(null);
@@ -79,9 +79,9 @@ public class BoxServiceTest extends AbstractTest {
 		// Actor actor = new Actor();
 		List<Box> box = new ArrayList<Box>();
 		Message message = new Message();
-		Box fatherBox = this.actorService.getActorByUsername("PacoCustomer").getBoxes().get(0);
+		Box fatherBox = this.actorService.getActorByUsername("customer1").getBoxes().get(0);
 		// fatherBox.getMessages().get(0);
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		// List<Message> messages = new ArrayList<Message>();
 		// messages = this.messageService.findAll2();
 		message = this.messageService.findOne(fatherBox.getMessages().get(0).getId());
@@ -95,39 +95,41 @@ public class BoxServiceTest extends AbstractTest {
 
 	@Test
 	public void testSaveBox() {
-		this.authenticate("PacoCustomer");
-		Box fatherBox = this.actorService.getActorByUsername("PacoCustomer").getBoxes().get(0);
-		Box box = this.boxService.create("testBox", fatherBox);
+		this.authenticate("customer1");
+		Box fatherBox = this.actorService.getActorByUsername("customer1").getBoxes().get(0);
+		Box box = this.boxService.create();
+		box.setName("name");
+		box.setFatherBox(fatherBox);
 
 		Box save = this.boxService.save(box);
-		Assert.isTrue(this.actorService.getActorByUsername("PacoCustomer").getBoxes().contains(save));
+		Assert.isTrue(this.actorService.getActorByUsername("customer1").getBoxes().contains(save));
 
 		this.authenticate(null);
 	}
 
 	@Test
 	public void testDelete() {
-		this.authenticate("pepe4HW");
+		this.authenticate("handyWorker4");
 		Actor actor = new Actor();
 		Box box = new Box();
-		actor = this.actorService.getActorByUsername("Pepe4HW");
+		actor = this.actorService.getActorByUsername("handyWorker4");
 		box = actor.getBoxes().get(5);
 
-		System.out.println();
+		//System.out.println();
 
 		// HW with 6 box = pepe4HW
 		this.boxService.deleteBox(box);
 
-		System.out.println(actor.getBoxes());
-		System.out.println(this.boxService.findOne(1872));
+		//System.out.println(actor.getBoxes());
+		//System.out.println(this.boxService.findOne(1872));
 
-		Assert.isTrue(this.actorService.getActorByUsername("Pepe4HW").getBoxes().size() == 5);
+		Assert.isTrue(this.actorService.getActorByUsername("handyWorker4").getBoxes().size() == 5);
 		this.authenticate(null);
 	}
 
 	@Test
 	public void testGetActorBoxes() {
-		this.authenticate("pepeHW");
+		this.authenticate("customer1");
 
 		List<Box> boxes = new ArrayList<>();
 

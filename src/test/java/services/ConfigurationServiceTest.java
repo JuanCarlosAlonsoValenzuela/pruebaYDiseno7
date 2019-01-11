@@ -35,7 +35,7 @@ public class ConfigurationServiceTest extends AbstractTest {
 	@Test
 	public void testGoodWords() {
 		String goodWords;
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		goodWords = this.configurationService.showGoodWords();
 
 		Assert.isTrue(!goodWords.isEmpty());
@@ -45,7 +45,7 @@ public class ConfigurationServiceTest extends AbstractTest {
 	@Test
 	public void testBadWords() {
 		String badWords;
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		badWords = this.configurationService.showBadWords();
 
 		Assert.isTrue(!badWords.isEmpty());
@@ -55,7 +55,7 @@ public class ConfigurationServiceTest extends AbstractTest {
 	@Test
 	public void testIsStringSpam() {
 		Boolean result = false;
-		super.authenticate("PacoCustomer");
+		super.authenticate("customer1");
 		List<String> spam = new ArrayList<String>();
 		spam = this.configurationService.getSpamWords();
 		result = this.configurationService.isStringSpam("sex", spam);
