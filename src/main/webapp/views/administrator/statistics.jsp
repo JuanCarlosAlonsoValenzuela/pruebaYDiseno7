@@ -178,7 +178,7 @@ tr:nth-child(even) {
   </tr>
   <tr>
     <td><b><spring:message code="statistics.ratioPendingElapsedApplications" /></b></td>
-    <td><jstl:out  value="${statisticsRatios.get('ratioPendingElapsedApplications')}"/></td>
+    <td><jstl:out  value="${statisticsRatios.get('ratioPendingApplications')}"/></td>
   </tr>
   <tr>
     <td><b><spring:message code="statistics.fixUpTaskWithComplain" /></b></td>

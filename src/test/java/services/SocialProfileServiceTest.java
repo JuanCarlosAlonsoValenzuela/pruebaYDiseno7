@@ -1,3 +1,4 @@
+
 package services;
 
 import org.junit.Test;
@@ -12,45 +13,48 @@ import utilities.AbstractTest;
 import domain.SocialProfile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/datasource.xml",
-	"classpath:spring/config/packages.xml" })
+@ContextConfiguration(locations = {
+	"classpath:spring/datasource.xml", "classpath:spring/config/packages.xml"
+})
 @Transactional
 public class SocialProfileServiceTest extends AbstractTest {
 
-    @Autowired
-    private SocialProfileService socialProfileService;
+	@Autowired
+	private SocialProfileService	socialProfileService;
 
-    @Autowired
-    private ActorService actorService;
+	@Autowired
+	private ActorService			actorService;
 
-    public SocialProfile create(String nick, String name, String profileLink) {
-	SocialProfile socialProfile = new SocialProfile();
 
-	socialProfile.setName(name);
-	socialProfile.setNick(nick);
-	socialProfile.setProfileLink(profileLink);
+	public SocialProfile create(String nick, String name, String profileLink) {
+		SocialProfile socialProfile = new SocialProfile();
 
-	return socialProfile;
-    }
+		socialProfile.setName(name);
+		socialProfile.setNick(nick);
+		socialProfile.setProfileLink(profileLink);
 
-    @Test
-    public void createTest() {
+		return socialProfile;
+	}
 
-	super.authenticate("PacoCustomer");
-	this.actorService.loggedAsActor();
+	@Test
+	public void createTest() {
 
-	SocialProfile socialProfile = new SocialProfile();
-	SocialProfile saved = new SocialProfile();
+		super.authenticate("customer1");
+		this.actorService.loggedAsActor();
 
-	socialProfile = this.socialProfileService
-		.create("JayKlass", "Alejandro Gomez Caballero",
-			"https://stackoverflow.com/questions/6834037/initialize-a-long-in-java");
+		SocialProfile socialProfile = new SocialProfile();
+		SocialProfile saved = new SocialProfile();
 
-	saved = this.socialProfileService.save(socialProfile);
+		socialProfile = this.socialProfileService.create();
+		socialProfile.setName("Name");
+		socialProfile.setNick("Nick");
+		socialProfile.setProfileLink("https://www.youtube.com");
 
-	Assert.isTrue(this.socialProfileService.findAll().contains(saved));
-	super.authenticate(null);
+		saved = this.socialProfileService.save(socialProfile);
 
-    }
+		Assert.isTrue(this.socialProfileService.findAll().contains(saved));
+		super.authenticate(null);
+
+	}
 
 }

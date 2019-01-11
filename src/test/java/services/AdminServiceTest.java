@@ -65,7 +65,7 @@ public class AdminServiceTest extends AbstractTest {
 		List<Admin> all;
 
 		all = this.adminService.findAll();
-		Assert.isTrue(all.size() == 1);
+		Assert.isTrue(all.size() == 3);
 		super.authenticate(null);
 	}
 
@@ -153,7 +153,7 @@ public class AdminServiceTest extends AbstractTest {
 	public void testListWarranty() {
 		super.authenticate("admin");
 		List<Warranty> warranties = this.adminService.listWarranty();
-		Assert.isTrue(warranties.size() == 7);
+		Assert.isTrue(warranties.size() == 10);
 		super.authenticate(null);
 	}
 
@@ -161,7 +161,7 @@ public class AdminServiceTest extends AbstractTest {
 	public void testShowWarranties() {
 		super.authenticate("admin");
 		Map<String, Warranty> warranties = this.adminService.showWarranties();
-		Assert.isTrue(warranties.keySet().size() == 7);
+		Assert.isTrue(warranties.keySet().size() == 10);
 		super.authenticate(null);
 	}
 
@@ -189,7 +189,7 @@ public class AdminServiceTest extends AbstractTest {
 	public void testListCategory() {
 		super.authenticate("admin");
 		List<Category> categories = this.adminService.listCategory();
-		Assert.isTrue(categories.size() == 4);
+		Assert.isTrue(categories.size() == 22);
 		super.authenticate(null);
 	}
 
@@ -197,15 +197,16 @@ public class AdminServiceTest extends AbstractTest {
 	public void testShowCategories() {
 		super.authenticate("admin");
 		Map<String, Category> categories = this.adminService.showCategory();
-		Assert.isTrue(categories.keySet().size() == 4);
+		Assert.isTrue(categories.keySet().size() == 22);
 		super.authenticate(null);
 	}
 
 	@Test
 	public void testSaveCategory() { // Contains save and findAll
 		super.authenticate("admin");
-		List<Category> subCategories = new ArrayList<Category>();
-		Category category = this.adminService.createCategory(subCategories, "myCategory");
+		Category category = this.categoryService.create();
+		category.setName("test");
+		category.setNameSpanish("prueba");
 		Category save = this.categoryService.save(category);
 
 		List<Category> categories = this.categoryService.findAll();
@@ -218,14 +219,17 @@ public class AdminServiceTest extends AbstractTest {
 	public void testDeleteCategory() {
 		super.authenticate("admin");
 		List<Category> subCategories = new ArrayList<Category>();
-		Category category = this.adminService.createCategory(subCategories, "categoryTest");
+		Category category = this.categoryService.create();
+		category.setName("test");
+		category.setNameSpanish("prueba");
+
 		Category saved = this.categoryService.save(category);
 
 		List<Category> categories = this.categoryService.findAll();
 
 		Assert.isTrue(categories.contains(saved));
 
-		this.adminService.deleteCategory(saved);
+		this.categoryService.delete(saved);
 
 		categories = this.categoryService.findAll();
 
@@ -256,30 +260,30 @@ public class AdminServiceTest extends AbstractTest {
 		Double res3 = 4.0;
 		Double res4 = 1.2686114456365274;
 
-		Double res5 = 1.2857;
+		Double res5 = 1.4286;
 		Double res6 = 1.0;
 		Double res7 = 2.0;
-		Double res8 = 0.4517539533274045;
+		Double res8 = 0.4948716602332779;
 
 		Double res9 = 301.14285714285717;
 		Double res10 = 20.0;
 		Double res11 = 703.0;
 		Double res12 = 225.93641872465454;
 
-		Double res13 = 51.988888888888894;
+		Double res13 = 47.67;
 		Double res14 = 4.5;
 		Double res15 = 123.0;
-		Double res16 = 52.432781188964945;
+		Double res16 = 51.40186864307561;
 
 		Double res17 = 1.5714;
 		Double res18 = 1.0;
 		Double res19 = 2.0;
 		Double res20 = 0.49487166037761543;
 
-		Double res21 = 0.8;
+		Double res21 = 1.0;
 		Double res22 = 0.0;
-		Double res23 = 1.0;
-		Double res24 = 0.4;
+		Double res23 = 2.0;
+		Double res24 = 0.7071067811865476;
 
 		Assert.isTrue(result.get("fixUpTaskPerUser")[0].equals(res1));
 		Assert.isTrue(calculations1[1].equals(res2));
@@ -327,11 +331,17 @@ public class AdminServiceTest extends AbstractTest {
 		Double calculations4 = result.get("ratioPendingElapsedApplications");
 		Double calculations5 = result.get("fixUpTaskWithComplain");
 
-		Double res1 = 55.555599212646484;
-		Double res2 = 33.33330154418945;
-		Double res3 = 11.111100196838379;
-		Double res4 = 22.222200393676758;
+		Double res1 = 30.0;
+		Double res2 = 60.0;
+		Double res3 = 10.0;
+		Double res4 = 0.0;
 		Double res5 = 100.0;
+
+		System.out.println(calculations1);
+		System.out.println(calculations2);
+		System.out.println(calculations3);
+		System.out.println(calculations4);
+		System.out.println(calculations5);
 
 		Assert.isTrue(calculations1.equals(res1));
 		Assert.isTrue(calculations2.equals(res2));
@@ -339,8 +349,8 @@ public class AdminServiceTest extends AbstractTest {
 		Assert.isTrue(calculations4.equals(res4));
 		Assert.isTrue(calculations5.equals(res5));
 		this.authenticate(null);
-	}
 
+	}
 	@Test
 	public void testTenPercentMoreApplicationsCustomers() {
 		this.authenticate("admin");
@@ -355,7 +365,7 @@ public class AdminServiceTest extends AbstractTest {
 		this.authenticate("admin");
 
 		Map<String, List<Customer>> map = this.adminService.top3Customers();
-		Assert.isTrue(map.get("customers10PercentMoreApplications").size() == 3);
+		Assert.isTrue(map.get("topThreeCustomers").size() == 3);
 		this.authenticate(null);
 	}
 
@@ -364,17 +374,17 @@ public class AdminServiceTest extends AbstractTest {
 		this.authenticate("admin");
 
 		Map<String, List<HandyWorker>> map = this.adminService.top3HandyWorker();
-		Assert.isTrue(map.get("HandyWorkerTermsofComplainsOrdered").size() == 3);
+		Assert.isTrue(map.get("topThreeHandyWorkers").size() == 3);
 		this.authenticate(null);
 	}
 
 	@Test
 	public void testBroadcastMessageVersion2() {
 
-		this.authenticate("davidAdmin");
+		this.authenticate("admin");
 
-		Admin admin = this.adminService.getAdminByUsername("davidAdmin");
-		HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("PepeHW");
+		Admin admin = this.adminService.getAdminByUsername("admin");
+		HandyWorker handyWorker = this.handyWorkerService.getHandyWorkerByUsername("handyWorker1");
 
 		//System.out.println(message);
 		//System.out.println(saved);
@@ -391,16 +401,20 @@ public class AdminServiceTest extends AbstractTest {
 
 			Box received = this.boxService.getRecievedBoxByActor(a);
 			List<Message> receivedMessages = received.getMessages();
-			for (Message m : receivedMessages)
-				if (m.getBody().equals(saved.getBody()) && m.getSubject().equals(saved.getSubject()) && m.getSender().equals(saved.getSender()) && m.getReceiver().equals(saved.getReceiver()))
+			for (Message m : receivedMessages) {
+				if (m.getBody().equals(saved.getBody()) && m.getSubject().equals(saved.getSubject()) && m.getSender().equals(saved.getSender()) && m.getReceiver().equals(saved.getReceiver())) {
 					count = count + 1;
+				}
+			}
 
 			Box spam = this.boxService.getSpamBoxByActor(a);
 			List<Message> spamMessages = spam.getMessages();
 
-			for (Message m : spamMessages)
-				if (m.getBody().equals(saved.getBody()) && m.getSubject().equals(saved.getSubject()) && m.getSender().equals(saved.getSender()) && m.getReceiver().equals(saved.getReceiver()))
+			for (Message m : spamMessages) {
+				if (m.getBody().equals(saved.getBody()) && m.getSubject().equals(saved.getSubject()) && m.getSender().equals(saved.getSender()) && m.getReceiver().equals(saved.getReceiver())) {
 					count = count + 1;
+				}
+			}
 
 		}
 		System.out.println(count);
@@ -415,7 +429,7 @@ public class AdminServiceTest extends AbstractTest {
 	public void testBanSuspiciousActor() {
 		this.authenticate("admin");
 
-		Actor actor = this.actorService.getActorByUsername("PepeHW");
+		Actor actor = this.actorService.getActorByUsername("handyWorker1");
 		actor.setHasSpam(true);
 
 		this.actorService.save(actor);
@@ -431,7 +445,7 @@ public class AdminServiceTest extends AbstractTest {
 	public void testUnBanSuspiciousActor() {
 		this.authenticate("admin");
 
-		Actor actor = this.actorService.getActorByUsername("PepeHW");
+		Actor actor = this.actorService.getActorByUsername("handyWorker1");
 		actor.setHasSpam(true);
 
 		this.actorService.save(actor);
