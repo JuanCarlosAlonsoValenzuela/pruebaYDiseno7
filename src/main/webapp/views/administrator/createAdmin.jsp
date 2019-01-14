@@ -35,11 +35,14 @@
   if (/(\+[0-9]{3})([0-9]{4,})$/.test(phoneNumber)) {
 	    res = true;
   }
-  if(res == false) {
-	  
-    alert("<spring:message code="admin.confirmationPhone" />");
+  if(phoneNumber == ""){
+	  alert("<spring:message code="anonymous.alertSave" />");
   }
- 
+  if(res == false && phoneNumber != "") {
+	  
+    confirm("<spring:message code="admin.confirmationPhone" />");
+  }
+
 }
   </script>
 
@@ -57,7 +60,7 @@
 	<form:label path="name">
 		<spring:message code="administrator.name" />
 	</form:label>
-	<form:input path="name" />
+	<form:input path="name" placeholder="Paco" />
 	<form:errors cssClass="error" path="name"/>
 	<br />
 	
@@ -71,28 +74,28 @@
 	<form:label path="surname">
 		<spring:message code="administrator.surname" />
 	</form:label>
-	<form:input path="surname" />
+	<form:input path="surname" placeholder="Perez" />
 	<form:errors cssClass="error" path="surname"/>
 	<br />
 	
 	<form:label path="photo">
 		<spring:message code="administrator.photo" />
 	</form:label>
-	<form:input path="photo"/>
+	<form:input path="photo" placeholder="https://www.example.com"/>
 	<form:errors cssClass="error" path="photo"/>
 	<br />
 	
 	<form:label path="email">
 		<spring:message code="administrator.email" />
 	</form:label>
-	<form:input path="email" />
+	<form:input path="email" placeholder="something@domain.com" />
 	<form:errors cssClass="error" path="email"/>
 	<br />
 	
 	<form:label path="phoneNumber">
 		<spring:message code="administrator.phoneNumber" />
 	</form:label>
-	<form:input path="phoneNumber"/>
+	<form:input path="phoneNumber" placeholder="+34(452)25252"/>
 	<form:errors cssClass="error" path="phoneNumber"/>
 	<br />
 	

@@ -4,9 +4,11 @@ package controllers;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -70,7 +72,7 @@ public class AdministratorCreateUserController extends AbstractController {
 					admin.setPhoneNumber(prefix + admin.getPhoneNumber());
 					this.adminService.saveCreate(admin);
 				} else {
-					result = new ModelAndView("redirect:/anonymous/createAdmin.do");
+					this.adminService.saveCreate(admin);
 				}
 				result = new ModelAndView("redirect:/security/login.do");
 			} catch (Throwable oops) {
@@ -129,13 +131,23 @@ public class AdministratorCreateUserController extends AbstractController {
 		} else {
 			try {
 				referee.getUserAccount().setPassword(encoder.encodePassword(referee.getUserAccount().getPassword(), null));
-				if (referee.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || referee.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
+				if (referee.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("referee", "email", referee.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(referee);
+					} else {
+						binding.addError(new FieldError("referee", "email", referee.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(referee);
+					}
+
+				} else if (referee.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || referee.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.refereeService.saveCreate(referee);
 				} else if (referee.getPhoneNumber().matches("([0-9]{4,})$")) {
 					referee.setPhoneNumber(prefix + referee.getPhoneNumber());
 					this.refereeService.saveCreate(referee);
 				} else {
-					result = new ModelAndView("redirect:/anonymous/createReferee.do");
+					this.refereeService.saveCreate(referee);
+
 				}
 				result = new ModelAndView("redirect:/security/login.do");
 			} catch (Throwable oops) {
@@ -144,7 +156,6 @@ public class AdministratorCreateUserController extends AbstractController {
 		}
 		return result;
 	}
-
 	//CreateEditModelAndView
 	protected ModelAndView createEditModelAndView(Referee referee) {
 		ModelAndView result;
