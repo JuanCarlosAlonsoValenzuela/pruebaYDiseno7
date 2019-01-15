@@ -34,6 +34,7 @@ import services.MessageService;
 import domain.Actor;
 import domain.Application;
 import domain.CreditCard;
+import domain.FixUpTask;
 import domain.Message;
 import domain.Priority;
 import domain.Status;
@@ -71,11 +72,15 @@ public class ApplicationCustomerController extends AbstractController {
 
 		applications = this.applicationService.getApplicationsFix(this.fixUpTaskService.findOne(fixUpTaskId));
 
-		result = new ModelAndView("customer/applications");
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId))) {
+			result = new ModelAndView("customer/applications");
 
-		result.addObject("applications", applications);
-		result.addObject("fixUpTaskId", fixUpTaskId);
-		result.addObject("requestURI", "application/customer/list.do");
+			result.addObject("applications", applications);
+			result.addObject("fixUpTaskId", fixUpTaskId);
+			result.addObject("requestURI", "application/customer/list.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
@@ -123,9 +128,15 @@ public class ApplicationCustomerController extends AbstractController {
 
 		Application application = this.applicationService.findOne(applicationId);
 
-		result = new ModelAndView("customer/changeStatus");
-		result.addObject(application);
-		result.addObject("requestURI", "application/customer/edit.do");
+		FixUpTask fixUpTask = application.getFixUpTask();
+
+		if (this.customerService.showFixUpTasks().contains(fixUpTask)) {
+			result = new ModelAndView("customer/changeStatus");
+			result.addObject(application);
+			result.addObject("requestURI", "application/customer/edit.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
