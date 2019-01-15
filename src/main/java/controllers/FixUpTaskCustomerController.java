@@ -77,7 +77,11 @@ public class FixUpTaskCustomerController extends AbstractController {
 
 		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
 
-		result = this.createEditModelAndView(fixUpTask, "customer/editFixUpTask");
+		if (this.customerService.showFixUpTasks().contains(fixUpTask)) {
+			result = this.createEditModelAndView(fixUpTask, "customer/editFixUpTask");
+		} else {
+			result = new ModelAndView("redirect:list.do");
+		}
 
 		return result;
 	}
