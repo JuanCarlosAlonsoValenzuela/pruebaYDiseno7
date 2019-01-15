@@ -14,6 +14,8 @@
 		<!-- Hidden Attributes -->
 		<form:hidden path="id"/>
 		<form:hidden path="moment" />
+		<form:hidden path="usernames" />
+		<form:hidden path="optionalComments" />
 		<input type="hidden" name="reportId" id="reportId" value="<jstl:out value="${param.reportId}"/>"/>
 		<input type="hidden" name="complaintId" id="complaintId" value="<jstl:out value="${param.complaintId}"/>"/>
 		<input type="hidden" name="fixUpTaskId" id="fixUpTaskId" value="<jstl:out value="${param.fixUpTaskId}"/>"/>

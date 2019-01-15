@@ -1057,6 +1057,21 @@ public class HandyWorkerService {
 		return this.handyWorkerRepository.getFixUpTasksFromHandyWorker(handyWorker.getId());
 	}
 	public Collection<Phase> getPhasesByApplication(Application application) {
+		FixUpTask fixUpTask = application.getFixUpTask();
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.getHandyWorkerByUsername(userAccount.getUsername());
+
+		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
+
+		Boolean isInvolved = false;
+
+		for (Application a : fixUpTaksApplications) {
+			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
+				isInvolved = true;
+			}
+		}
+
+		Assert.isTrue(isInvolved);
 
 		return this.handyWorkerRepository.getPhasesByApplication(application.getId());
 	}
