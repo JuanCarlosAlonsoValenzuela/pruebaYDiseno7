@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 
- * PopulateDatabase.xml
- *
- * Copyright (C) 2018 Universidad de Sevilla
- * 
- * The use of this project is hereby constrained to the conditions of the 
- * TDG Licence, a copy of which you may download from 
- * http://www.tdg-seville.info/License.html
- -->
+
 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -17,8 +9,7 @@
 	">
 	
 	<!-- User accounts -->
-
-	<bean id="userAccount1" class="security.UserAccount">
+	<bean id="userAccount18" class="security.UserAccount">
 		<property name="username" value="admin" />
 		<property name="password" value="21232f297a57a5a743894a0e4a801fc3" />
 		<property name="authorities">
@@ -28,7 +19,473 @@
 				</bean>
 			</list>
 		</property>
+		<property name="isNotLocked" value="True" />
+	</bean> 
+	
+	<bean id="userAccount16" class="security.UserAccount">
+		<property name="username" value="sponsor1" />
+		<property name="password" value="42c63ad66d4dc07ed17753772bef96d6" />
+		<property name="authorities">
+			<list>
+				<bean class="security.Authority">
+					<property name="authority" value="SPONSOR" />
+				</bean>
+			</list>
+		</property>
+		<property name="isNotLocked" value="True" />
 	</bean>
+	
+	<bean id="userAccount17" class="security.UserAccount">
+		<property name="username" value="sponsor2" />
+		<property name="password" value="3dc67f80a03324e01b1640f45d107485" />
+		<property name="authorities">
+			<list>
+				<bean class="security.Authority">
+					<property name="authority" value="SPONSOR" />
+				</bean>
+			</list>
+		</property>
+		<property name="isNotLocked" value="True" />
+	</bean>
+	
+	<!-- ADMIN -->
+	<bean id="admin1" class="domain.Admin">
+		<property name="name" value="Juan Carlos David" />
+		<property name="middleName" value="" />
+		<property name="surname" value="Alonso Gil" />
+		<property name="photo" value="https://www.url.com/example" />
+		<property name="email" value="davidgiluniv@gmail.com" />
+		<property name="phoneNumber" value="+34609235520" />
+		<property name="address" value="Almendralejo" />
+		<property name="socialProfiles">
+			<list>
+				<ref bean="socialProfile1" />
+			</list>
+		</property>
+		<property name="boxes">
+			<list>
+				<ref bean="box1" />
+				<ref bean="box2" />
+				<ref bean="box3" />
+				<ref bean="box4" />
+			</list>
+		</property>
+		<property name="userAccount" ref="userAccount18" />
+		<property name="hasSpam" value = "false"/>
+	</bean>
+	
+		<!-- SPONSOR -->
+	<bean id="sponsor1" class="domain.Sponsor">
+		<property name="name" value="Pepe" />
+		<property name="middleName" value="" />
+		<property name="surname" value="Perez" />
+		<property name="photo" value="" />
+		<property name="email" value="pepe@gmail.com" />
+		<property name="phoneNumber" value="666666666" />
+		<property name="address" value="calle falsa 4321" />
+		<property name="boxes">
+			<list>
+				<ref bean="receivedSponsor1" />
+				<ref bean="sentSponsor1" />
+				<ref bean="spamSponsor1" />
+				<ref bean="trashSponsor1" />
+			</list>
+		</property>
+
+		<property name="sponsorships">
+			<list>
+				<ref bean="sponsorship1" />
+				<ref bean="sponsorship4" />
+			</list>
+		</property>
+		<property name="userAccount" ref="userAccount16" />
+		<property name="hasSpam" value = "false"/>
+	</bean>
+
+	<bean id="sponsor2" class="domain.Sponsor">
+		<property name="name" value="Juan" />
+		<property name="middleName" value="" />
+		<property name="surname" value="Rodriguez" />
+		<property name="photo" value="" />
+		<property name="email" value="juan@gmail.com" />
+		<property name="boxes">
+			<list>
+				<ref bean="receivedSponsor2" />
+				<ref bean="sentSponsor2" />
+				<ref bean="spamSponsor2" />
+				<ref bean="trashSponsor2" />
+			</list>
+		</property>
+		<property name="phoneNumber" value="666666661" />
+		<property name="address" value="calle falsa 1234" />
+		<property name="sponsorships">
+			<list>
+				<ref bean="sponsorship2" />
+				<ref bean="sponsorship3" />
+				<ref bean="sponsorship5" />
+				<ref bean="sponsorship6" />
+			</list>
+		</property>
+		<property name="userAccount" ref="userAccount17" />
+		<property name="hasSpam" value = "false"/>
+	</bean>
+	<!-- END OF SPONSOR -->
+	
+	<!--  CONFIGURATION -->
+	<bean id ="configuration" class="domain.Configuration">
+		<property name="iva21" value="21" />
+		<property name="spainTelephoneCode" value="+34" />
+		<property name="spamWords">
+			<list>
+				<value>sex</value>
+				<value>viagra</value>
+				<value>cialis</value>
+				<value>one million</value>
+				<value>you’ve been selected</value>
+				<value>Nigeria</value>
+				<value>sexo</value>
+				<value>un millón</value>
+				<value>ha sido seleccionado</value>
+				<value>pene</value>
+				<value>maduras</value>
+				<value>astolfo</value>
+				<value>furry</value>
+				<value>ugly bastard</value>
+			</list>
+		</property>
+		<property name="cardType">
+			<list>
+				<value>VISA</value>
+				<value>MASTER</value>
+				<value>DINNERS</value>
+				<value>AMEX</value>
+			</list>
+		</property>
+		<property name="goodWords" value="good, fantastic, excellent, great, amazing, terrific, beautiful, bueno, fantastico, excelente, increible, estupendo, hermoso" />
+		<property name="badWords" value="not, bad, horrible, average, disaster, no, malo, horrible, mediocre, desastre " />
+		<property name="maxFinderResults" value="100"/>
+		<property name="minFinderResults" value="10" />
+		<property name="minTimeFinder" value="1" />
+		<property name="maxTimeFinder" value="24" />
+		<property name="finderResult" value="10"/>
+		<property name="timeFinder" value="1"/>
+
+		
+		<property name="welcomeMessageEnglish" value="Welcome to Acme Handy Worker! Price, quality, and trust in a single place" />
+		<property name="welcomeMessageSpanish" value="¡Bienvenidos a Acme Handy Worker! Precio, calidad y confianza en el mismo sitio" />
+		
+		<property name="systemName" value="Acme Handy Worker" />
+		<property name="imageURL" value="https://tinyurl.com/acme-handy-worker-logo" />
+		
+	</bean>
+	
+	<!-- CATEGORY -->
+	<bean id="CATEGORY" class="domain.Category">
+		<property name="name" value="CATEGORY" />
+		<property name="nameSpanish" value="CATEGORIA" />
+		<property name="subCategories">
+			<list>
+				<ref bean="category4" />
+				<ref bean="category5" />
+				<ref bean="category6" />
+				<ref bean="category7" />
+				<ref bean="category8" />
+				<ref bean="category9" />
+				<ref bean="category10" />
+				<ref bean="category11" />
+				<ref bean="category12" />
+				<ref bean="category13" />
+				<ref bean="category14" />
+				<ref bean="category15" />
+				<ref bean="category16" />
+				<ref bean="category17" />
+				<ref bean="category18" />
+				<ref bean="category19" />
+				<ref bean="category20" />
+				<ref bean="category21" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="category1" class="domain.Category">
+		<property name="name" value="Carpentry" />
+		<property name="nameSpanish" value="Carpinteria" />
+	</bean>
+
+	<bean id="category2" class="domain.Category">
+		<property name="name" value="Ceiling repair" />
+		<property name="nameSpanish" value="Reparacion de techos" />
+		<property name="subCategories">
+			<list>
+				<ref bean="category1" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="category3" class="domain.Category">
+		<property name="name" value="Cleaning" />
+		<property name="nameSpanish" value="Limpieza" />
+		<property name="subCategories">
+			<list>
+				<ref bean="category2" />
+			</list>
+
+		</property>
+	</bean>
+
+	<bean id="category4" class="domain.Category">
+		<property name="name" value="Concrete work" />
+		<property name="nameSpanish" value="Hormigon" />
+		<property name="subCategories">
+			<list>
+				<ref bean="category3" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="category5" class="domain.Category">
+		<property name="name" value="Doors" />
+		<property name="nameSpanish" value="Puertas" />
+	</bean>
+	
+	
+	
+	<bean id="category6" class="domain.Category">
+		<property name="name" value="Electrical wiring" />
+		<property name="nameSpanish" value="Cableado Electrico" />
+	</bean>
+	
+	<bean id="category7" class="domain.Category">
+		<property name="name" value="Fan installation" />
+		<property name="nameSpanish" value="Instalacion de Ventiladores" />
+	</bean>
+	
+	<bean id="category8" class="domain.Category">
+		<property name="name" value="Fence fixing" />
+		<property name="nameSpanish" value="Reparacion de Verjas" />
+	</bean>
+	
+	<bean id="category9" class="domain.Category">
+		<property name="name" value="Home security systems" />
+		<property name="nameSpanish" value="Sistemas de Seguridad residenciales" />
+	</bean>
+	
+	<bean id="category10" class="domain.Category">
+		<property name="name" value="Insulation installation" />
+		<property name="nameSpanish" value="Instalacion de aislamientos" />
+	</bean>
+	
+	<bean id="category11" class="domain.Category">
+		<property name="name" value="Lamp repairs" />
+		<property name="nameSpanish" value="Reparacion de lamparas" />
+	</bean>
+	
+	<bean id="category12" class="domain.Category">
+		<property name="name" value="Moving" />
+		<property name="nameSpanish" value="Mudanzas" />
+	</bean>
+	
+	<bean id="category13" class="domain.Category">
+		<property name="name" value="Painting" />
+		<property name="nameSpanish" value="Pintura" />
+	</bean>
+	
+	<bean id="category14" class="domain.Category">
+		<property name="name" value="Pest control" />
+		<property name="nameSpanish" value="Control de plagas" />
+	</bean>
+	
+	<bean id="category15" class="domain.Category">
+		<property name="name" value="Plumbing repairs" />
+		<property name="nameSpanish" value="Fontaneria" />
+	</bean>
+	
+	<bean id="category16" class="domain.Category">
+		<property name="name" value="Roofing" />
+		<property name="nameSpanish" value="Techados" />
+	</bean>
+	
+	<bean id="category17" class="domain.Category">
+		<property name="name" value="Shelf installation" />
+		<property name="nameSpanish" value="Instalacion de estanterias" />
+	</bean>
+	
+	<bean id="category18" class="domain.Category">
+		<property name="name" value="Solar panels" />
+		<property name="nameSpanish" value="Paneles solares" />
+	</bean>
+	
+	<bean id="category19" class="domain.Category">
+		<property name="name" value="Soundproofing" />
+		<property name="nameSpanish" value="Aislamiento de sonido" />
+	</bean>
+	
+	<bean id="category20" class="domain.Category">
+		<property name="name" value="Sprinkler repair" />
+		<property name="nameSpanish" value="Reparacion de aspersores" />
+	</bean>
+	
+	<bean id="category21" class="domain.Category">
+		<property name="name" value="Window repair" />
+		<property name="nameSpanish" value="Reparacion de Ventanas" />
+	</bean>
+	
+	<!-- END OF CATEGORY -->
+	
+	<!-- BOX -->
+	<bean class="domain.Box" id="box1">
+		<property value="Sent messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean class="domain.Box" id="box2">
+		<property value="Received messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+			<list>
+			</list>
+		</property>
+	</bean>
+
+	<bean class="domain.Box" id="box3">
+		<property value="Trash" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean class="domain.Box" id="box4">
+		<property value="Spam" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+			<list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="sentSponsor1">
+		<property value="Sent messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="receivedSponsor1">
+		<property value="Received messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="trashSponsor1">
+		<property value="Trash" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="spamSponsor1">
+		<property value="Spam" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="sentSponsor2">
+		<property value="Sent messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="receivedSponsor2">
+		<property value="Received messages" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="trashSponsor2">
+		<property value="Trash" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="domain.Box" id="spamSponsor2">
+		<property value="Spam" name="name" />
+		<property value="true" name="isSystem" />
+		<property name="messages">
+		    <list>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- SOCIALPROFILE -->
+	<bean class="domain.SocialProfile" id="socialProfile1">
+		<property value="Administrador1" name="nick" />
+		<property value="Paco" name="name" />
+		<property value="https://www.example.com/link1" name="profileLink" />
+	</bean>
+	
+	
+	<!-- SPONSORSHIP -->
+	<bean id="sponsorship1" class="domain.Sponsorship">
+		<property name="bannerUrl" value="http://www.brandemia.org/wp-content/uploads/2013/04/version_pizzero_nuevo-logo.jpg" />
+		<property name="link" value="https://www.telepizza.es/" />
+		
+	</bean>
+
+	<bean id="sponsorship2" class="domain.Sponsorship">
+		<property name="bannerUrl" value="https://www.desatranques.com/images/fotos/17_g.jpg" />
+		<property name="link" value="https://www.desatranques.com/" />
+		
+	</bean>
+	<bean id="sponsorship3" class="domain.Sponsorship">
+		<property name="bannerUrl" value="http://appcircus.com/blog/wp-content/uploads/2012/03/Logo-ETSII-300x226.png" />
+		<property name="link" value="https://www.informatica.us.es/" />
+		
+	</bean>
+
+	<bean id="sponsorship4" class="domain.Sponsorship">
+		<property name="bannerUrl" value="https://compraenzalamea.files.wordpress.com/2015/08/carpinteria-paco-360_l-270x270-ok-ok-ok.jpg" />
+		<property name="link" value="https://www.carpinteriapacolopez.com/" />
+		
+	</bean>
+	<bean id="sponsorship5" class="domain.Sponsorship">
+		<property name="bannerUrl" value="https://ih1.redbubble.net/image.231254349.2149/pp,550x550.u1.jpg" />
+		<property name="link" value="http://www.scp-wiki.net/" />
+		
+	</bean>
+
+	<bean id="sponsorship6" class="domain.Sponsorship">
+		<property name="bannerUrl" value="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Electronic-Arts-Logo.svg/1200px-Electronic-Arts-Logo.svg.png" />
+		<property name="link" value="https://www.ea.com/" />
+		
+	</bean>
+	<!-- END OF SPONSORSHIP -->
+	
+	
+    
+	
 	
 	<!-- Other domain beans come here -->	
 	
