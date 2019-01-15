@@ -25,9 +25,12 @@
   if (/(\+[0-9]{1,3})([0-9]{4,})$/.test(phoneNumber)) {
 	res = true;
   }
-  if(res == false) {
+  if(phoneNumber == ""){
+	  alert("<spring:message code="anonymous.alertSave" />");
+  }
+  if(res == false && phoneNumber != "") {
 	  
-    confirm("<spring:message code="anonymous.confirmationPhone" />");
+    confirm("<spring:message code="admin.confirmationPhone" />");
   }
  
 }
