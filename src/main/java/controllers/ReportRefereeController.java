@@ -76,6 +76,7 @@ public class ReportRefereeController {
 
 		report = this.reportService.findOne(reportId);
 		Assert.notNull(report);
+		Assert.isTrue(this.refereeService.securityAndReferee().getReports().contains(report));
 		result = this.createEditModelAndView(report);
 		result.addObject("complaintId", complaintId);
 
