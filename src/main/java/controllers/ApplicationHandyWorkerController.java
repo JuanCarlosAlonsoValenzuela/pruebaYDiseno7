@@ -70,7 +70,12 @@ public class ApplicationHandyWorkerController extends AbstractController {
 	public ModelAndView commentList(@RequestParam int applicationId) {
 		ModelAndView result;
 
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
+
 		Application application = this.applicationService.findOne(applicationId);
+
+		Assert.isTrue(application.getHandyWorker().equals(logguedHandyWorker));
 
 		Collection<String> comments = application.getComments();
 
@@ -151,13 +156,6 @@ public class ApplicationHandyWorkerController extends AbstractController {
 				FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
 				application.setFixUpTask(fixUpTask);
 				application.setHandyWorker(logguedHandyWorker);
-
-				Integer iva = this.configuariotnService.getConfiguration().getIva21();
-
-				Double price = application.getOfferedPrice();
-
-				Double priceIva = price + price * (iva / 100.);
-				application.setOfferedPrice(priceIva);
 
 				this.applicationService.save(application);
 

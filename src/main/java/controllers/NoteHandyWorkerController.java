@@ -18,9 +18,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import security.LoginService;
 import security.UserAccount;
+import services.FixUpTaskService;
 import services.HandyWorkerService;
 import services.NoteService;
 import services.ReportService;
+import domain.Application;
+import domain.FixUpTask;
+import domain.HandyWorker;
 import domain.Note;
 import domain.Report;
 
@@ -35,6 +39,8 @@ public class NoteHandyWorkerController extends AbstractController {
 	private NoteService			noteService;
 	@Autowired
 	private HandyWorkerService	handyWorkerService;
+	@Autowired
+	private FixUpTaskService	fixUpTaskService;
 
 
 	//Constructor
@@ -44,12 +50,28 @@ public class NoteHandyWorkerController extends AbstractController {
 
 	//List
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public ModelAndView list(@RequestParam int reportId) {
+	public ModelAndView list(@RequestParam int reportId, @RequestParam int fixUpTaskId) {
 
 		ModelAndView result;
 
 		Collection<Note> notes = new ArrayList<Note>();
 		Report report = new Report();
+
+		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
+
+		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
+
+		Boolean isInvolved = false;
+
+		for (Application a : fixUpTaksApplications) {
+			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
+				isInvolved = true;
+			}
+		}
+
+		Assert.isTrue(isInvolved);
 
 		report = this.reportService.findOne(reportId);
 
@@ -79,17 +101,19 @@ public class NoteHandyWorkerController extends AbstractController {
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
 	public ModelAndView save(@Valid Note note, BindingResult binding, @Valid int reportId, @Valid int complaintId, @Valid int fixUpTaskId) {
 		ModelAndView result;
+		UserAccount userAccount = LoginService.getPrincipal();
 
 		if (binding.hasErrors()) {
 			result = this.createEditModelAndView(note);
 		} else {
 			try {
 				Report report = this.reportService.findOne(reportId);
-				List<Note> notes = report.getNotes();
-				Note newNote = this.noteService.save(note);
-				notes.add(newNote);
-				report.setNotes(notes);
-				this.reportService.save(report);
+
+				List<String> usernames = note.getUsernames();
+				usernames.add(userAccount.getUsername());
+				note.setUsernames(usernames);
+
+				this.handyWorkerService.createNoteFromHandyWorker(complaintId, note, reportId);
 
 				result = new ModelAndView("redirect:list.do");
 				result.addObject("reportId", reportId);
@@ -104,8 +128,24 @@ public class NoteHandyWorkerController extends AbstractController {
 
 	//Comments
 	@RequestMapping(value = "/listComments", method = RequestMethod.GET)
-	public ModelAndView commentList(@RequestParam int noteId) {
+	public ModelAndView commentList(@RequestParam int noteId, @RequestParam int fixUpTaskId) {
 		ModelAndView result;
+
+		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
+
+		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
+
+		Boolean isInvolved = false;
+
+		for (Application a : fixUpTaksApplications) {
+			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
+				isInvolved = true;
+			}
+		}
+
+		Assert.isTrue(isInvolved);
 
 		Note note = this.noteService.findOne(noteId);
 
@@ -113,7 +153,6 @@ public class NoteHandyWorkerController extends AbstractController {
 
 		Collection<String> usernames = note.getUsernames();
 
-		UserAccount userAccount = LoginService.getPrincipal();
 		String username = userAccount.getUsername();
 
 		result = new ModelAndView("handy-worker/noteComments");
@@ -133,7 +172,6 @@ public class NoteHandyWorkerController extends AbstractController {
 		List<String> usernames = note.getUsernames();
 		UserAccount userAccount = LoginService.getPrincipal();
 
-		System.out.println("Prueba: " + usernames.contains(userAccount.getUsername()));
 		Assert.isTrue(!(usernames.contains(userAccount.getUsername())));
 
 		result = new ModelAndView("handy-worker/addNoteComment");
@@ -151,6 +189,9 @@ public class NoteHandyWorkerController extends AbstractController {
 			Note note = this.noteService.findOne(noteId);
 			List<String> comments = note.getOptionalComments();
 			List<String> usernames = note.getUsernames();
+
+			Assert.isTrue(!(usernames.contains(userAccount.getUsername())));
+
 			usernames.add(userAccount.getUsername());
 			comments.add(comment);
 			note.setOptionalComments(comments);
