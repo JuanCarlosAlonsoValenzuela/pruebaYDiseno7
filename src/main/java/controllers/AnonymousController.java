@@ -4,9 +4,11 @@ package controllers;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -70,16 +72,21 @@ public class AnonymousController extends AbstractController {
 			try {
 				handyWorker.getUserAccount().setPassword(encoder.encodePassword(handyWorker.getUserAccount().getPassword(), null));
 				if (handyWorker.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:/anonymous/createHandyWorker.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("handyWorker", "email", handyWorker.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(handyWorker);
+					} else {
+						binding.addError(new FieldError("handyWorker", "email", handyWorker.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(handyWorker);
+					}
 				} else if (handyWorker.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || handyWorker.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.handyWorkerService.saveCreate(handyWorker);
 				} else if (handyWorker.getPhoneNumber().matches("([0-9]{4,})$")) {
 					handyWorker.setPhoneNumber(prefix + handyWorker.getPhoneNumber());
 					this.handyWorkerService.saveCreate(handyWorker);
 				} else {
-					result = new ModelAndView("redirect:/anonymous/createHandyWorker.do");
+					this.handyWorkerService.saveCreate(handyWorker);
+
 				}
 				result = new ModelAndView("redirect:/security/login.do");
 			} catch (Throwable oops) {
@@ -137,8 +144,13 @@ public class AnonymousController extends AbstractController {
 			try {
 				customer.getUserAccount().setPassword(encoder.encodePassword(customer.getUserAccount().getPassword(), null));
 				if (customer.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:/anonymous/createCustomer.do");
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("customer", "email", customer.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(customer);
+					} else {
+						binding.addError(new FieldError("customer", "email", customer.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(customer);
+					}
 
 				} else if (customer.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || customer.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.customerService.saveCreate(customer);
@@ -146,7 +158,8 @@ public class AnonymousController extends AbstractController {
 					customer.setPhoneNumber(prefix + customer.getPhoneNumber());
 					this.customerService.saveCreate(customer);
 				} else {
-					result = new ModelAndView("redirect:/anonymous/createCustomer.do");
+					this.customerService.saveCreate(customer);
+
 				}
 				result = new ModelAndView("redirect:/security/login.do");
 			} catch (Throwable oops) {
@@ -206,16 +219,21 @@ public class AnonymousController extends AbstractController {
 			try {
 				sponsor.getUserAccount().setPassword(encoder.encodePassword(sponsor.getUserAccount().getPassword(), null));
 				if (sponsor.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:/anonymous/createSponsor.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("sponsor", "email", sponsor.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(sponsor);
+					} else {
+						binding.addError(new FieldError("sponsor", "email", sponsor.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(sponsor);
+					}
 				} else if (sponsor.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || sponsor.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.sponsorService.saveCreate(sponsor);
 				} else if (sponsor.getPhoneNumber().matches("([0-9]{4,})$")) {
 					sponsor.setPhoneNumber(prefix + sponsor.getPhoneNumber());
 					this.sponsorService.saveCreate(sponsor);
 				} else {
-					result = new ModelAndView("redirect:/anonymous/createSponsor.do");
+					this.sponsorService.saveCreate(sponsor);
+
 				}
 				result = new ModelAndView("redirect:/security/login.do");
 			} catch (Throwable oops) {
@@ -224,7 +242,6 @@ public class AnonymousController extends AbstractController {
 		}
 		return result;
 	}
-
 	//Create Model And View
 	protected ModelAndView createEditModelAndView(Sponsor sponsor) {
 		ModelAndView result;

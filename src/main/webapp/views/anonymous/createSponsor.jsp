@@ -26,11 +26,14 @@
   if (/(\+[0-9]{3})([0-9]{4,})$/.test(phoneNumber)) {
 	    res = true;
   }
-  if(res == false) {
-	  
-    alert("<spring:message code="anonymous.confirmationPhone" />");
+  if(phoneNumber == ""){
+	  alert("<spring:message code="anonymous.alertSave" />");
   }
- 
+  if(res == false && phoneNumber != "") {
+	  
+    confirm("<spring:message code="anonymous.confirmationPhone" />");
+  }
+	  
 }
   </script>
 
@@ -50,7 +53,7 @@
 	<form:label path="name">
 		<spring:message code="sponsor.name" />
 	</form:label>
-	<form:input path="name" />
+	<form:input path="name" placeholder="Paco" />
 	<form:errors cssClass="error" path="name"/>
 	<br />
 	
@@ -58,7 +61,7 @@
 	<form:label path="middleName">
 		<spring:message code="sponsor.middleName" />
 	</form:label>
-	<form:input path="middleName" />
+	<form:input path="middleName"  />
 	<form:errors cssClass="error" path="middleName"/>
 	<br />
 
@@ -66,7 +69,7 @@
 	<form:label path="surname">
 		<spring:message code="sponsor.surname" /> 
 	</form:label>
-	<form:input path="surname" />
+	<form:input path="surname" placeholder="Perez" />
 	<form:errors cssClass="error" path="surname"/>
 	<br />
 	
@@ -74,7 +77,7 @@
 	<form:label path="photo">
 		<spring:message code="sponsor.photo" /> 
 	</form:label>
-	<form:input path="photo"/>
+	<form:input path="photo" placeholder="https://www.example.com"/>
 	<form:errors cssClass="error" path="photo"/>
 	<br />
 	
@@ -82,14 +85,14 @@
 	<form:label path="email">
 		<spring:message code="sponsor.email" /> 
 	</form:label>
-	<form:input path="email" />
+	<form:input path="email" placeholder="example@gmail.com" />
 	<form:errors cssClass="error" path="email"/>
 	<br />
 
 	<form:label path="phoneNumber">
 		<spring:message code="sponsor.phoneNumber" /> 
 	</form:label>
-	<form:input path="phoneNumber"/>
+	<form:input path="phoneNumber" placeholder="+34(425)42652"/>
 	<form:errors cssClass="error" path="phoneNumber"/>
 	<br />
 
