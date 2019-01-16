@@ -70,12 +70,7 @@ public class ApplicationHandyWorkerController extends AbstractController {
 	public ModelAndView commentList(@RequestParam int applicationId) {
 		ModelAndView result;
 
-		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
 		Application application = this.applicationService.findOne(applicationId);
-
-		Assert.isTrue(application.getHandyWorker().equals(logguedHandyWorker));
 
 		Collection<String> comments = application.getComments();
 
@@ -83,6 +78,8 @@ public class ApplicationHandyWorkerController extends AbstractController {
 
 		result.addObject("requestURI", "application/handyWorker/listComments.do");
 		result.addObject("comments", comments);
+
+		result = this.isInvolved(applicationId, result);
 
 		return result;
 	}
@@ -92,6 +89,8 @@ public class ApplicationHandyWorkerController extends AbstractController {
 
 		result = new ModelAndView("handy-worker/addComment");
 		result.addObject("applicationId", applicationId);
+
+		result = this.isInvolved(applicationId, result);
 
 		return result;
 	}
@@ -184,5 +183,15 @@ public class ApplicationHandyWorkerController extends AbstractController {
 
 		return result;
 
+	}
+
+	public ModelAndView isInvolved(int applicationId, ModelAndView result) {
+		Boolean isInvolved = this.handyWorkerService.isInvolvedPhase(applicationId);
+
+		if (!isInvolved) {
+			result = new ModelAndView("welcome/index");
+		}
+
+		return result;
 	}
 }

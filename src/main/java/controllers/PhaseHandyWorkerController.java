@@ -2,7 +2,6 @@
 package controllers;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -15,15 +14,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import security.LoginService;
-import security.UserAccount;
 import services.ApplicationService;
 import services.FixUpTaskService;
 import services.HandyWorkerService;
 import services.PhaseService;
 import domain.Application;
 import domain.FixUpTask;
-import domain.HandyWorker;
 import domain.Phase;
 
 @Controller
@@ -52,29 +48,16 @@ public class PhaseHandyWorkerController extends AbstractController {
 		ModelAndView result;
 
 		Application application = this.applicationService.findOne(applicationId);
-		FixUpTask fixUpTask = application.getFixUpTask();
 
 		Collection<Phase> phases = this.handyWorkerService.getPhasesByApplication(application);
-		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
-		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
-
-		Boolean isInvolved = false;
-
-		for (Application a : fixUpTaksApplications) {
-			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
-				isInvolved = true;
-			}
-		}
-
-		Assert.isTrue(isInvolved && application.getHandyWorker().equals(logguedHandyWorker));
 
 		result = new ModelAndView("handy-worker/workPlan");
 
 		result.addObject("phases", phases);
 		result.addObject("applicationId", applicationId);
 		result.addObject("requestURI", "phase/handyWorker/list.do");
+
+		result = this.isInvolved(applicationId, result);
 
 		return result;
 
@@ -93,6 +76,8 @@ public class PhaseHandyWorkerController extends AbstractController {
 			Assert.notNull(phase);
 		}
 		result = this.createEditModelAndView(phase);
+
+		result = this.isInvolved(applicationId, phaseId, result);
 
 		return result;
 	}
@@ -159,5 +144,21 @@ public class PhaseHandyWorkerController extends AbstractController {
 
 		return result;
 
+	}
+
+	//Security
+
+	public ModelAndView isInvolved(int applicationId, ModelAndView result) {
+		return this.isInvolved(applicationId, 0, result);
+	}
+
+	public ModelAndView isInvolved(int applicationId, int phaseId, ModelAndView result) {
+		Boolean isInvolved = this.handyWorkerService.isInvolvedPhase(applicationId, phaseId);
+
+		if (!isInvolved) {
+			result = new ModelAndView("welcome/index");
+		}
+
+		return result;
 	}
 }

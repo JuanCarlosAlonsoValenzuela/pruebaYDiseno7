@@ -6,21 +6,16 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import security.LoginService;
-import security.UserAccount;
 import services.ComplaintService;
 import services.FixUpTaskService;
 import services.HandyWorkerService;
-import domain.Application;
 import domain.Complaint;
 import domain.FixUpTask;
-import domain.HandyWorker;
 
 @Controller
 @RequestMapping("/complaint/handyWorker")
@@ -49,20 +44,6 @@ public class ComplaintHandyWorkerController extends AbstractController {
 		Collection<Complaint> complaints;
 
 		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
-		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
-		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
-
-		Boolean isInvolved = false;
-
-		for (Application a : fixUpTaksApplications) {
-			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
-				isInvolved = true;
-			}
-		}
-
-		Assert.isTrue(isInvolved);
 
 		complaints = fixUpTask.getComplaints();
 
@@ -70,6 +51,8 @@ public class ComplaintHandyWorkerController extends AbstractController {
 
 		result.addObject("complaints", complaints);
 		result.addObject("requestURI", "complaint/handyWorker/list.do");
+
+		result = this.isInvolved(fixUpTaskId, result);
 
 		return result;
 
@@ -79,22 +62,7 @@ public class ComplaintHandyWorkerController extends AbstractController {
 	public ModelAndView complaintAttachmentList(@RequestParam int complaintId, @RequestParam int fixUpTaskId) {
 
 		ModelAndView result;
-		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
 		this.handyWorkerService.findOne(fixUpTaskId);
-		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
-
-		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
-		Boolean isInvolved = false;
-
-		for (Application a : fixUpTaksApplications) {
-			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
-				isInvolved = true;
-			}
-		}
-
-		Assert.isTrue(isInvolved);
 
 		Complaint complaint = this.complaitnService.findOne(complaintId);
 		List<String> attachments = complaint.getAttachments();
@@ -104,8 +72,26 @@ public class ComplaintHandyWorkerController extends AbstractController {
 		result.addObject("attachments", attachments);
 		result.addObject("requestURI", "complaint/handyWorker/attachmentList.do");
 
+		result = this.isInvolved(fixUpTaskId, complaintId, result);
+
 		return result;
 
+	}
+
+	//Security
+
+	public ModelAndView isInvolved(int fixUpTaskId, ModelAndView result) {
+		return this.isInvolved(fixUpTaskId, 0, result);
+	}
+
+	public ModelAndView isInvolved(int fixUpTaskId, int complaintId, ModelAndView result) {
+		Boolean isInvolved = this.handyWorkerService.isInvolved(fixUpTaskId, complaintId);
+
+		if (!isInvolved) {
+			result = new ModelAndView("welcome/index");
+		}
+
+		return result;
 	}
 
 }
