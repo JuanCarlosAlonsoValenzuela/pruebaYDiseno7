@@ -49,7 +49,10 @@ public class MessageController extends AbstractController {
 		box = this.boxService.findOne(boxId);
 		UserAccount userAccount = LoginService.getPrincipal();
 		Actor a = this.actorService.getActorByUsername(userAccount.getUsername());
-		Assert.isTrue(this.actorService.getlistOfBoxes(a).contains(box));
+		if (!(this.actorService.getlistOfBoxes(a).contains(box))) {
+			Box boxReturn = this.actorService.getlistOfBoxes(a).get(0);
+			return new ModelAndView("redirect:list.do?boxId=" + boxReturn.getId());
+		}
 
 		ModelAndView result;
 
@@ -135,14 +138,16 @@ public class MessageController extends AbstractController {
 	public ModelAndView delete(Message message, BindingResult binding) {
 		this.actorService.loggedAsActor();
 		UserAccount userAccount = LoginService.getPrincipal();
-
-		Assert.isTrue(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()));
-
 		ModelAndView result;
 		List<Box> boxes;
 		Box box;
 		boxes = this.boxService.getCurrentBoxByMessage(message);
 		box = boxes.get(0);
+
+		if (!(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()))) {
+			return new ModelAndView("redirect:list.do?boxId=" + box.getId());
+		}
+
 		try {
 
 			this.messageService.deleteMessageToTrashBox(message);
@@ -179,7 +184,10 @@ public class MessageController extends AbstractController {
 
 		message = this.messageService.findOne(messageId);
 
-		Assert.isTrue(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()));
+		if (!(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()))) {
+			return new ModelAndView("redirect:list.do?boxId=" + boxId);
+
+		}
 		box = this.boxService.findOne(boxId);
 
 		try {
