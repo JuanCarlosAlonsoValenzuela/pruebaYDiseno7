@@ -62,9 +62,14 @@ public class ReportRefereeController {
 		ModelAndView result;
 		Report report;
 
-		report = this.reportService.create();
-		result = this.createEditModelAndView(report);
-		result.addObject("complaintId", complaintId);
+		if (this.refereeService.selfAssignedComplaints().contains(this.complaintService.findOne(complaintId))) {
+			report = this.reportService.create();
+			result = this.createEditModelAndView(report);
+			result.addObject("complaintId", complaintId);
+		} else {
+			result = new ModelAndView("redirect:list.do");
+			result.addObject("complaintId", complaintId);
+		}
 
 		return result;
 	}
@@ -76,9 +81,13 @@ public class ReportRefereeController {
 
 		report = this.reportService.findOne(reportId);
 		Assert.notNull(report);
-		Assert.isTrue(this.refereeService.securityAndReferee().getReports().contains(report));
-		result = this.createEditModelAndView(report);
-		result.addObject("complaintId", complaintId);
+		if (this.refereeService.securityAndReferee().getReports().contains(report)) {
+			result = this.createEditModelAndView(report);
+			result.addObject("complaintId", complaintId);
+		} else {
+			result = new ModelAndView("redirect:list.do");
+			result.addObject("complaintId", complaintId);
+		}
 
 		return result;
 	}
