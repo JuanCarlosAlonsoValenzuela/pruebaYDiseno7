@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import services.CustomerService;
 import services.FixUpTaskService;
 import domain.FixUpTask;
 import domain.Phase;
@@ -28,7 +29,9 @@ import domain.Phase;
 public class PhaseCustomerController extends AbstractController {
 
 	@Autowired
-	private FixUpTaskService	FixUpTaskService;
+	private FixUpTaskService	fixUpTaskService;
+	@Autowired
+	private CustomerService		customerService;
 
 
 	// Constructors -----------------------------------------------------------
@@ -43,12 +46,16 @@ public class PhaseCustomerController extends AbstractController {
 	public ModelAndView listPhases(@RequestParam int fixUpTaskId) {
 		ModelAndView result;
 
-		FixUpTask fixUpTask = this.FixUpTaskService.findOne(fixUpTaskId);
-		List<Phase> phases = (List<Phase>) fixUpTask.getPhases();
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId))) {
+			FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
+			List<Phase> phases = (List<Phase>) fixUpTask.getPhases();
 
-		result = new ModelAndView("customer/phases");
-		result.addObject("phases", phases);
-		result.addObject("requestURI", "phase/customer/list.do");
+			result = new ModelAndView("customer/phases");
+			result.addObject("phases", phases);
+			result.addObject("requestURI", "phase/customer/list.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}

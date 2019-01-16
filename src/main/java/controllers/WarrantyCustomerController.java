@@ -10,6 +10,8 @@
 
 package controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import services.CustomerService;
 import services.WarrantyService;
+import domain.FixUpTask;
 import domain.Warranty;
 
 @Controller
@@ -26,6 +30,9 @@ public class WarrantyCustomerController extends AbstractController {
 
 	@Autowired
 	private WarrantyService	warrantyService;
+
+	@Autowired
+	private CustomerService	customerService;
 
 
 	// Constructors -----------------------------------------------------------
@@ -42,13 +49,27 @@ public class WarrantyCustomerController extends AbstractController {
 
 		Warranty warranty = this.warrantyService.findOne(warrantyId);
 
-		result = new ModelAndView("customer/warranty");
-		result.addObject("warranty", warranty);
+		List<FixUpTask> fixUpTasks = (List<FixUpTask>) this.customerService.showFixUpTasks();
 
-		result.addObject("terms", warranty.getTerms());
-		result.addObject("laws", warranty.getLaws());
+		Boolean hasWarranty = false;
+		for (FixUpTask f : fixUpTasks) {
+			if (f.getWarranty().equals(warranty)) {
+				hasWarranty = true;
+				break;
+			}
+		}
 
-		result.addObject("requestURI", "warranty/customer/show.do");
+		if (hasWarranty) {
+			result = new ModelAndView("customer/warranty");
+			result.addObject("warranty", warranty);
+
+			result.addObject("terms", warranty.getTerms());
+			result.addObject("laws", warranty.getLaws());
+
+			result.addObject("requestURI", "warranty/customer/show.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
