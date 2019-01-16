@@ -94,10 +94,17 @@ public class SocialProfileController extends AbstractController {
 		ModelAndView result;
 		SocialProfile socialProfile;
 
+		Actor logged = this.actorService.getActorByUsername(LoginService.getPrincipal().getUsername());
+
+		List<SocialProfile> socialProfiles = logged.getSocialProfiles();
+
 		socialProfile = this.socialProfileService.findOne(socialProfileId);
 		Assert.notNull(socialProfile);
 		result = this.createEditModelAndView(socialProfile);
 
+		if (!(socialProfiles.contains(socialProfile))) {
+			result = this.list();
+		}
 		return result;
 	}
 
