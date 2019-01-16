@@ -4,9 +4,11 @@ package controllers;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -80,9 +82,13 @@ public class EditPersonalDataController extends AbstractController {
 		} else {
 			try {
 				if (customer.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:edit.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("customer", "email", customer.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(customer);
+					} else {
+						binding.addError(new FieldError("customer", "email", customer.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(customer);
+					}
 				} else if (customer.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || customer.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.customerService.save(customer);
 				} else if (customer.getPhoneNumber().matches("([0-9]{4,})$")) {
@@ -149,9 +155,13 @@ public class EditPersonalDataController extends AbstractController {
 		} else {
 			try {
 				if (sponsor.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:edit.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("sponsor", "email", sponsor.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(sponsor);
+					} else {
+						binding.addError(new FieldError("sponsor", "email", sponsor.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(sponsor);
+					}
 				} else if (sponsor.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || sponsor.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.sponsorService.save(sponsor);
 				} else if (sponsor.getPhoneNumber().matches("([0-9]{4,})$")) {
@@ -217,9 +227,13 @@ public class EditPersonalDataController extends AbstractController {
 		} else {
 			try {
 				if (referee.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:edit.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("referee", "email", referee.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(referee);
+					} else {
+						binding.addError(new FieldError("referee", "email", referee.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(referee);
+					}
 				} else if (referee.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || referee.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$")) {
 					this.refereeService.save(referee);
 				} else if (referee.getPhoneNumber().matches("([0-9]{4,})$")) {
@@ -350,9 +364,13 @@ public class EditPersonalDataController extends AbstractController {
 		} else {
 			try {
 				if (handyWorker.getEmail().matches("[\\w.%-]+\\<[\\w.%-]+\\@+\\>|[\\w.%-]+")) {
-
-					result = new ModelAndView("redirect:edit.do");
-
+					if (LocaleContextHolder.getLocale().getLanguage().toUpperCase().contains("ES")) {
+						binding.addError(new FieldError("handyWorker", "email", handyWorker.getEmail(), false, null, null, "No sigue el patron ejemplo@dominio.asd o alias <ejemplo@dominio.asd>"));
+						return this.createEditModelAndView(handyWorker);
+					} else {
+						binding.addError(new FieldError("handyWorker", "email", handyWorker.getEmail(), false, null, null, "Dont follow the pattern example@domain.asd or alias <example@domain.asd>"));
+						return this.createEditModelAndView(handyWorker);
+					}
 				} else if ((handyWorker.getPhoneNumber().matches("(\\+[0-9]{1,3})(\\([0-9]{1,3}\\))([0-9]{4,})$") || handyWorker.getPhoneNumber().matches("(\\+[0-9]{1,3})([0-9]{4,})$"))
 				/* && handyWorker.getEmail().matches("\\([A-Za-z0-9])+\\<([A-Za-z0-9])+(\\@)([A-Za-z0-9])+\\>") */) {
 					this.handyWorkerService.save(handyWorker);

@@ -34,6 +34,7 @@ import services.MessageService;
 import domain.Actor;
 import domain.Application;
 import domain.CreditCard;
+import domain.FixUpTask;
 import domain.Message;
 import domain.Priority;
 import domain.Status;
@@ -71,11 +72,15 @@ public class ApplicationCustomerController extends AbstractController {
 
 		applications = this.applicationService.getApplicationsFix(this.fixUpTaskService.findOne(fixUpTaskId));
 
-		result = new ModelAndView("customer/applications");
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId))) {
+			result = new ModelAndView("customer/applications");
 
-		result.addObject("applications", applications);
-		result.addObject("fixUpTaskId", fixUpTaskId);
-		result.addObject("requestURI", "application/customer/list.do");
+			result.addObject("applications", applications);
+			result.addObject("fixUpTaskId", fixUpTaskId);
+			result.addObject("requestURI", "application/customer/list.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
@@ -123,9 +128,15 @@ public class ApplicationCustomerController extends AbstractController {
 
 		Application application = this.applicationService.findOne(applicationId);
 
-		result = new ModelAndView("customer/changeStatus");
-		result.addObject(application);
-		result.addObject("requestURI", "application/customer/edit.do");
+		FixUpTask fixUpTask = application.getFixUpTask();
+
+		if (this.customerService.showFixUpTasks().contains(fixUpTask)) {
+			result = new ModelAndView("customer/changeStatus");
+			result.addObject(application);
+			result.addObject("requestURI", "application/customer/edit.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
@@ -138,6 +149,7 @@ public class ApplicationCustomerController extends AbstractController {
 			result = new ModelAndView("customer/changeStatus");
 			result.addObject("application", application);
 			result.addObject("message", "operation.error");
+
 		} else {
 			try {
 				if (application.getStatus().equals(Status.ACCEPTED)) {
@@ -208,12 +220,15 @@ public class ApplicationCustomerController extends AbstractController {
 	public ModelAndView changeApplicationStatusWithCreditCard(@Valid int applicationId, @Valid CreditCard creditCard, BindingResult binding) {
 		ModelAndView result = null;
 
-		if (binding.hasErrors() || Long.toString(creditCard.getNumber()).length() != 16 || Integer.toString(creditCard.getExpirationMonth()).length() != 2 || Integer.toString(creditCard.getExpirationYear()).length() != 2
-			|| Integer.toString(creditCard.getCvvCode()).length() != 3 || !(Integer.toString(creditCard.getExpirationMonth()).startsWith("0") || Integer.toString(creditCard.getExpirationMonth()).startsWith("1"))) {
+		List<String> cards = this.configurationService.getConfiguration().getCardType();
+
+		if (binding.hasErrors() || Long.toString(creditCard.getNumber()).length() != 16 || Integer.toString(creditCard.getExpirationMonth()).length() > 2 || Integer.toString(creditCard.getExpirationYear()).length() > 2
+			|| Integer.toString(creditCard.getCvvCode()).length() != 3 || creditCard.getExpirationMonth() > 12) {
 			result = new ModelAndView("customer/creditCard");
 			result.addObject("applicationId", applicationId);
 			result.addObject("creditCard", creditCard);
-			result.addObject("message", "operation.error");
+			result.addObject("message", "creditCard.operation.error");
+			result.addObject("cards", cards);
 		} else {
 			try {
 				Application application = this.applicationService.findOne(applicationId);
@@ -226,11 +241,13 @@ public class ApplicationCustomerController extends AbstractController {
 				result = new ModelAndView("redirect:list.do");
 				result.addObject("fixUpTaskId", applicationSave.getFixUpTask().getId());
 				result.addObject("applicationId", applicationSave.getId());
+				result.addObject("cards", cards);
 			} catch (Throwable oops) {
 				result = new ModelAndView("customer/creditCard");
 				result.addObject("applicationId", applicationId);
 				result.addObject("creditCard", creditCard);
-				result.addObject("message", "operation.error");
+				result.addObject("message", "creditCard.operation.error");
+				result.addObject("cards", cards);
 			}
 		}
 

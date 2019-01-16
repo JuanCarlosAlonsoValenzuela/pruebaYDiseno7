@@ -44,11 +44,20 @@ public class MessageController extends AbstractController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public ModelAndView list(@RequestParam int boxId) {
 
-		ModelAndView result;
+		this.actorService.loggedAsActor();
 		Box box = new Box();
+		box = this.boxService.findOne(boxId);
+		UserAccount userAccount = LoginService.getPrincipal();
+		Actor a = this.actorService.getActorByUsername(userAccount.getUsername());
+		if (!(this.actorService.getlistOfBoxes(a).contains(box))) {
+			Box boxReturn = this.actorService.getlistOfBoxes(a).get(0);
+			return new ModelAndView("redirect:list.do?boxId=" + boxReturn.getId());
+		}
+
+		ModelAndView result;
+
 		List<Message> messages;
-		UserAccount userAccount;
-		userAccount = LoginService.getPrincipal();
+
 		Actor actor = new Actor();
 		List<Box> boxes = new ArrayList<Box>();
 		List<Integer> idBoxes = new ArrayList<Integer>();
@@ -58,7 +67,6 @@ public class MessageController extends AbstractController {
 		actor = this.actorService.getActorByUsername(userAccount.getUsername());
 		boxes = this.actorService.getlistOfBoxes(actor);
 
-		box = this.boxService.findOne(boxId);
 		messages = this.messageService.getMessagesByBox(box);
 
 		result = new ModelAndView("message/actor/list");
@@ -74,6 +82,7 @@ public class MessageController extends AbstractController {
 	//Create
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public ModelAndView create() {
+		this.actorService.loggedAsActor();
 		ModelAndView result;
 		Message message;
 
@@ -86,10 +95,14 @@ public class MessageController extends AbstractController {
 	//Save
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
 	public ModelAndView save(@Valid Message message, BindingResult binding) {
+		this.actorService.loggedAsActor();
 		ModelAndView result;
 		Message savedMessage;
 		List<Box> boxes;
 		Box box;
+		UserAccount userAccount = LoginService.getPrincipal();
+
+		Assert.isTrue(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()));
 
 		if (binding.hasErrors()) {
 			result = this.createEditModelAndView(message);
@@ -108,6 +121,7 @@ public class MessageController extends AbstractController {
 	//Create
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
 	public ModelAndView edit(@RequestParam int rowId) {
+		this.actorService.loggedAsActor();
 		ModelAndView result;
 		Message message;
 
@@ -122,11 +136,18 @@ public class MessageController extends AbstractController {
 	//Save
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "delete")
 	public ModelAndView delete(Message message, BindingResult binding) {
+		this.actorService.loggedAsActor();
+		UserAccount userAccount = LoginService.getPrincipal();
 		ModelAndView result;
 		List<Box> boxes;
 		Box box;
 		boxes = this.boxService.getCurrentBoxByMessage(message);
 		box = boxes.get(0);
+
+		if (!(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()))) {
+			return new ModelAndView("redirect:list.do?boxId=" + box.getId());
+		}
+
 		try {
 
 			this.messageService.deleteMessageToTrashBox(message);
@@ -141,6 +162,7 @@ public class MessageController extends AbstractController {
 	//Create
 	@RequestMapping(value = "/createmove", method = RequestMethod.GET)
 	public ModelAndView createMove() {
+		this.actorService.loggedAsActor();
 		ModelAndView result;
 		Message message;
 
@@ -152,11 +174,20 @@ public class MessageController extends AbstractController {
 
 	@RequestMapping(value = "/move", method = RequestMethod.GET)
 	public ModelAndView update(@RequestParam int messageId, @RequestParam int boxId) {
+		this.actorService.loggedAsActor();
 		ModelAndView result;
 		Message message;
 		Box box;
 
+		UserAccount userAccount;
+		userAccount = LoginService.getPrincipal();
+
 		message = this.messageService.findOne(messageId);
+
+		if (!(userAccount.getUsername().equals(message.getSender().getUserAccount().getUsername()))) {
+			return new ModelAndView("redirect:list.do?boxId=" + boxId);
+
+		}
 		box = this.boxService.findOne(boxId);
 
 		try {
