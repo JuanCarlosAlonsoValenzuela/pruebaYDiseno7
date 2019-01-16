@@ -422,6 +422,8 @@ public class RefereeService {
 
 		Assert.isTrue(this.reportService.findAll().contains(report));
 
+		Assert.isTrue(loggedReferee.getReports().contains(report));
+
 		List<Note> notes = report.getNotes();
 		List<String> usernames = note.getUsernames();
 

@@ -76,12 +76,17 @@ public class PhaseService {
 	}
 
 	public void saveAndUpdateFixUpTask(Phase phase, int applicationId) {
-		Phase newPhase = this.phaseRepository.save(phase);
 		Application application = this.applicationService.findOne(applicationId);
 		FixUpTask fixUpTask = application.getFixUpTask();
+		Date start = fixUpTask.getMomentPublished();
+		Date end = fixUpTask.getRealizationTime();
+
+		Assert.isTrue((phase.getStartMoment().after(start) || phase.getStartMoment().equals(start)) && (phase.getEndMoment().before(end) || phase.getEndMoment().equals(end)));
+		Phase newPhase = this.phaseRepository.save(phase);
 		Collection<Phase> phases = fixUpTask.getPhases();
 		phases.add(newPhase);
 		fixUpTask.setPhases(phases);
+
 		this.fixUpTaskService.save(fixUpTask);
 	}
 }
