@@ -498,7 +498,12 @@ public class AdminService {
 		result = new HashMap<String, List<Customer>>();
 
 		// Mirar que pasa si hay solo 2 elementos en la lista
-		result.put("topThreeCustomers", calculations2.subList(0, 3));
+
+		if (calculations2.size() > 3) {
+			result.put("topThreeCustomers", calculations2.subList(0, 3));
+		} else {
+			result.put("topThreeCustomers", calculations2);
+		}
 		return result;
 	}
 
@@ -516,7 +521,11 @@ public class AdminService {
 		result = new HashMap<String, List<HandyWorker>>();
 
 		// Mirar que pasa si hay solo 2 elementos en la lista
-		result.put("topThreeHandyWorkers", calculations2.subList(0, 3));
+		if (calculations2.size() > 3) {
+			result.put("topThreeHandyWorkers", calculations2.subList(0, 3));
+		} else {
+			result.put("topThreeHandyWorkers", calculations2);
+		}
 		return result;
 	}
 

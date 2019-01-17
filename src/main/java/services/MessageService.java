@@ -243,7 +243,7 @@ public class MessageService {
 
 		Message message = new Message();
 
-		Actor sender = this.actorService.getActorByUsername("system");
+		Actor sender = this.actorService.getActorByUsername("admin");
 
 		message.setMoment(thisMoment);
 		message.setSubject(Subject);
