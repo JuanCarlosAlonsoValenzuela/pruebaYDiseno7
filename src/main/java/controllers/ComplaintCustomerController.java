@@ -64,14 +64,18 @@ public class ComplaintCustomerController extends AbstractController {
 
 		Collection<Complaint> complaints;
 
-		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
-		complaints = fixUpTask.getComplaints();
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId))) {
+			FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
+			complaints = fixUpTask.getComplaints();
 
-		result = new ModelAndView("complaint/customer/list");
+			result = new ModelAndView("complaint/customer/list");
 
-		result.addObject("complaints", complaints);
-		result.addObject("fixUpTaskId", fixUpTaskId);
-		result.addObject("requestURI", "complaint/customer/listPerTask.do");
+			result.addObject("complaints", complaints);
+			result.addObject("fixUpTaskId", fixUpTaskId);
+			result.addObject("requestURI", "complaint/customer/listPerTask.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 
@@ -82,13 +86,18 @@ public class ComplaintCustomerController extends AbstractController {
 		ModelAndView result;
 		Complaint c;
 
-		c = this.complaintService.create();
-		result = this.createEditModelAndView(c);
-		result.addObject("fix", fix);
+		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fix);
+
+		if (this.customerService.showFixUpTasks().contains(fixUpTask)) {
+			c = this.complaintService.create();
+			result = this.createEditModelAndView(c);
+			result.addObject("fix", fix);
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
-
 	@RequestMapping(value = "/create", method = RequestMethod.POST, params = "save")
 	public ModelAndView save(@Valid Complaint complaint, BindingResult binding, @RequestParam String newAttachments, @RequestParam int fix) {
 		ModelAndView result;

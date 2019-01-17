@@ -15,7 +15,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,13 +72,15 @@ public class ApplicationCustomerController extends AbstractController {
 		ModelAndView result;
 		Collection<Application> applications;
 
-		applications = this.applicationService.getApplicationsFix(this.fixUpTaskService.findOne(fixUpTaskId));
+		String locale = LocaleContextHolder.getLocale().getLanguage().toUpperCase();
 
 		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId))) {
 			result = new ModelAndView("customer/applications");
+			applications = this.applicationService.getApplicationsFix(this.fixUpTaskService.findOne(fixUpTaskId));
 
 			result.addObject("applications", applications);
 			result.addObject("fixUpTaskId", fixUpTaskId);
+			result.addObject("locale", locale);
 			result.addObject("requestURI", "application/customer/list.do");
 		} else {
 			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
@@ -84,14 +88,17 @@ public class ApplicationCustomerController extends AbstractController {
 
 		return result;
 	}
-
 	@RequestMapping(value = "/newComment", method = RequestMethod.GET)
 	public ModelAndView newComment(@RequestParam int applicationId, @RequestParam int fixUpTaskId) {
 		ModelAndView result;
 
-		result = new ModelAndView("customer/addComment");
-		result.addObject("applicationId", applicationId);
-		result.addObject("fixUpTaskId", fixUpTaskId);
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId)) && this.customerService.showApplications().contains(this.applicationService.findOne(applicationId))) {
+			result = new ModelAndView("customer/addComment");
+			result.addObject("applicationId", applicationId);
+			result.addObject("fixUpTaskId", fixUpTaskId);
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}
@@ -220,34 +227,42 @@ public class ApplicationCustomerController extends AbstractController {
 	public ModelAndView changeApplicationStatusWithCreditCard(@Valid int applicationId, @Valid CreditCard creditCard, BindingResult binding) {
 		ModelAndView result = null;
 
+		Hibernate.initialize(this.configurationService.getConfiguration().getCardType());
 		List<String> cards = this.configurationService.getConfiguration().getCardType();
 
-		if (binding.hasErrors() || Long.toString(creditCard.getNumber()).length() != 16 || Integer.toString(creditCard.getExpirationMonth()).length() > 2 || Integer.toString(creditCard.getExpirationYear()).length() > 2
-			|| Integer.toString(creditCard.getCvvCode()).length() != 3 || creditCard.getExpirationMonth() > 12) {
+		if (binding.hasErrors()) {
 			result = new ModelAndView("customer/creditCard");
 			result.addObject("applicationId", applicationId);
 			result.addObject("creditCard", creditCard);
-			result.addObject("message", "creditCard.operation.error");
 			result.addObject("cards", cards);
 		} else {
-			try {
-				Application application = this.applicationService.findOne(applicationId);
-				application.setStatus(Status.ACCEPTED);
-				Application applicationSave = this.customerService.editApplication(application, creditCard);
-
-				//Messages
-				this.sendMessagesToActorsInvolved(application);
-
-				result = new ModelAndView("redirect:list.do");
-				result.addObject("fixUpTaskId", applicationSave.getFixUpTask().getId());
-				result.addObject("applicationId", applicationSave.getId());
-				result.addObject("cards", cards);
-			} catch (Throwable oops) {
+			if (Long.toString(creditCard.getNumber()).length() != 16 || Integer.toString(creditCard.getExpirationMonth()).length() > 2 || Integer.toString(creditCard.getExpirationYear()).length() > 2
+				|| Integer.toString(creditCard.getCvvCode()).length() != 3 || creditCard.getExpirationMonth() > 12 || !this.applicationService.validateCreditCardNumber(Long.toString(creditCard.getNumber()))) {
 				result = new ModelAndView("customer/creditCard");
 				result.addObject("applicationId", applicationId);
 				result.addObject("creditCard", creditCard);
-				result.addObject("message", "creditCard.operation.error");
+				result.addObject("message", "creditCard.binding.error");
 				result.addObject("cards", cards);
+			} else {
+				try {
+					Application application = this.applicationService.findOne(applicationId);
+					application.setStatus(Status.ACCEPTED);
+					Application applicationSave = this.customerService.editApplication(application, creditCard);
+
+					//Messages
+					this.sendMessagesToActorsInvolved(application);
+
+					result = new ModelAndView("redirect:list.do");
+					result.addObject("fixUpTaskId", applicationSave.getFixUpTask().getId());
+					result.addObject("applicationId", applicationSave.getId());
+					result.addObject("cards", cards);
+				} catch (Throwable oops) {
+					result = new ModelAndView("customer/creditCard");
+					result.addObject("applicationId", applicationId);
+					result.addObject("creditCard", creditCard);
+					result.addObject("message", "creditCard.operation.error");
+					result.addObject("cards", cards);
+				}
 			}
 		}
 
@@ -258,12 +273,16 @@ public class ApplicationCustomerController extends AbstractController {
 	public ModelAndView applicationsCommentsList(@RequestParam int fixUpTaskId, @RequestParam int applicationId) {
 		ModelAndView result;
 
-		result = new ModelAndView("customer/comments");
-		result.addObject("applicationId", applicationId);
-		result.addObject("fixUpTaskId", fixUpTaskId);
+		if (this.customerService.showFixUpTasks().contains(this.fixUpTaskService.findOne(fixUpTaskId)) && this.customerService.showApplications().contains(this.applicationService.findOne(applicationId))) {
+			result = new ModelAndView("customer/comments");
+			result.addObject("applicationId", applicationId);
+			result.addObject("fixUpTaskId", fixUpTaskId);
 
-		result.addObject("comments", this.applicationService.findOne(applicationId).getComments());
-		result.addObject("requestURI", "application/customer/listComments.do");
+			result.addObject("comments", this.applicationService.findOne(applicationId).getComments());
+			result.addObject("requestURI", "application/customer/listComments.do");
+		} else {
+			result = new ModelAndView("redirect:/fixUpTask/customer/list.do");
+		}
 
 		return result;
 	}

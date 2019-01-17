@@ -64,7 +64,27 @@ java.sql.Timestamp now = new java.sql.Timestamp(utilDate.getTime());
 		<display:column property="moment" titleKey="application.moment"	
 						format="{0,date,dd/MM/yyyy HH:mm}" style="color:${color}"/>
 		
-		<display:column titleKey="application.status" property="status" style="color:${color}"/>	
+		<display:column titleKey="application.status" style="color:${color}">
+			<jstl:if test="${row.status=='PENDING'}">
+				<jstl:set var="status" value="PENDING"/>
+				<jstl:if test="${locale=='ES'}">
+					<jstl:set var="status" value="PENDIENTE"/>
+				</jstl:if>
+			</jstl:if>
+			<jstl:if test="${row.status=='ACCEPTED'}">
+				<jstl:set var="status" value="ACCEPTED"/>
+				<jstl:if test="${locale=='ES'}">
+					<jstl:set var="status" value="ACEPTADA"/>
+				</jstl:if>
+			</jstl:if>
+			<jstl:if test="${row.status=='REJECTED'}">
+				<jstl:set var="status" value="REJECTED"/>
+				<jstl:if test="${locale=='ES'}">
+					<jstl:set var="status" value="RECHAZADA"/>
+				</jstl:if>
+			</jstl:if>
+			<jstl:out value="${status}"/>
+		</display:column>
 		
 		<display:column property="offeredPrice" titleKey="application.offeredPrice" style="color:${color}"/>	
 		

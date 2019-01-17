@@ -94,9 +94,14 @@ public class NoteRefereeController extends AbstractController {
 		ModelAndView result;
 		Note note;
 
-		note = this.noteService.create();
-		result = this.createEditModelAndView(note);
-		result.addObject("reportId", reportId);
+		if (this.refereeService.securityAndReferee().getReports().contains(this.reportService.findOne(reportId))) {
+			note = this.noteService.create();
+			result = this.createEditModelAndView(note);
+			result.addObject("reportId", reportId);
+		} else {
+			result = new ModelAndView("redirect:list.do");
+			result.addObject("reportId", reportId);
+		}
 
 		return result;
 	}
@@ -108,9 +113,14 @@ public class NoteRefereeController extends AbstractController {
 
 		note = this.noteService.findOne(noteId);
 		Assert.notNull(note);
-		result = this.createEditModelAndView(note);
 
-		result.addObject("noteId", noteId);
+		if (this.refereeService.notesReferee(this.refereeService.securityAndReferee().getId()).contains(note)) {
+			result = this.createEditModelAndView(note);
+			result.addObject("noteId", noteId);
+		} else {
+			result = new ModelAndView("redirect:listComments.do");
+			result.addObject("noteId", noteId);
+		}
 
 		return result;
 	}

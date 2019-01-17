@@ -245,6 +245,11 @@ public class RefereeService {
 		return this.refereeRepository.complaintsUnassigned();
 	}
 
+	public List<Note> refereeNotes(int refereeId) {
+		this.securityAndReferee();
+		return this.refereeRepository.notesReferee(refereeId);
+	}
+
 	public Complaint assingComplaint(Complaint complaint) {
 		Referee loggedReferee = this.securityAndReferee();
 		List<Complaint> unassignedComplaints = this.refereeRepository.complaintsUnassigned();

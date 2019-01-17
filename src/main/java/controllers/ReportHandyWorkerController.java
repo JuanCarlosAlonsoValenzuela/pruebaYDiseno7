@@ -72,12 +72,14 @@ public class ReportHandyWorkerController extends AbstractController {
 		result.addObject("reports", reports);
 		result.addObject("requestURI", "/report/handyWorker/list.do");
 
+		result = this.isInvolved(fixUpTaskId, complaintId, result);
+
 		return result;
 	}
 
 	//AttchmentsList
 	@RequestMapping(value = "/attachmentList", method = RequestMethod.GET)
-	public ModelAndView complaintAttachmentList(@RequestParam int reportId, @RequestParam int fixUpTaskId) {
+	public ModelAndView complaintAttachmentList(@RequestParam int reportId, @RequestParam int complaintId, @RequestParam int fixUpTaskId) {
 
 		ModelAndView result;
 
@@ -105,7 +107,25 @@ public class ReportHandyWorkerController extends AbstractController {
 		result.addObject("attachments", attachments);
 		result.addObject("requestURI", "report/handyWorker/attachmentList.do");
 
+		result = this.isInvolved(fixUpTaskId, complaintId, reportId, result);
+
 		return result;
 
+	}
+
+	//Security
+
+	public ModelAndView isInvolved(int fixUpTaskId, int complaintId, ModelAndView result) {
+		return this.isInvolved(fixUpTaskId, complaintId, 0, result);
+	}
+
+	public ModelAndView isInvolved(int fixUpTaskId, int complaintId, int reportId, ModelAndView result) {
+		Boolean isInvolved = this.handyWorkerService.isInvolved(fixUpTaskId, complaintId, reportId);
+
+		if (!isInvolved) {
+			result = new ModelAndView("welcome/index");
+		}
+
+		return result;
 	}
 }

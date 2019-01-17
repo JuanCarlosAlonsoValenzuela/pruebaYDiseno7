@@ -22,9 +22,6 @@ import services.FixUpTaskService;
 import services.HandyWorkerService;
 import services.NoteService;
 import services.ReportService;
-import domain.Application;
-import domain.FixUpTask;
-import domain.HandyWorker;
 import domain.Note;
 import domain.Report;
 
@@ -50,28 +47,12 @@ public class NoteHandyWorkerController extends AbstractController {
 
 	//List
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public ModelAndView list(@RequestParam int reportId, @RequestParam int fixUpTaskId) {
+	public ModelAndView list(@RequestParam int reportId, @RequestParam int fixUpTaskId, @RequestParam int complaintId) {
 
 		ModelAndView result;
 
 		Collection<Note> notes = new ArrayList<Note>();
 		Report report = new Report();
-
-		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
-		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
-		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
-
-		Boolean isInvolved = false;
-
-		for (Application a : fixUpTaksApplications) {
-			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
-				isInvolved = true;
-			}
-		}
-
-		Assert.isTrue(isInvolved);
 
 		report = this.reportService.findOne(reportId);
 
@@ -83,16 +64,20 @@ public class NoteHandyWorkerController extends AbstractController {
 		result.addObject("notes", notes);
 		result.addObject("requestURI", "note/handyWorker/list.do");
 
+		result = this.isInvolved(fixUpTaskId, complaintId, reportId, result);
+
 		return result;
 	}
 	//Create
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public ModelAndView create(@RequestParam int reportId) {
+	public ModelAndView create(@RequestParam int reportId, @RequestParam int fixUpTaskId, @RequestParam int complaintId) {
 		ModelAndView result;
 		Note note;
 
 		note = this.noteService.create();
 		result = this.createEditModelAndView(note);
+
+		result = this.isInvolved(fixUpTaskId, complaintId, reportId, result);
 
 		return result;
 	}
@@ -100,14 +85,13 @@ public class NoteHandyWorkerController extends AbstractController {
 	//Save
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, params = "save")
 	public ModelAndView save(@Valid Note note, BindingResult binding, @Valid int reportId, @Valid int complaintId, @Valid int fixUpTaskId) {
-		ModelAndView result;
+		ModelAndView result = null;
 		UserAccount userAccount = LoginService.getPrincipal();
 
 		if (binding.hasErrors()) {
 			result = this.createEditModelAndView(note);
 		} else {
 			try {
-				Report report = this.reportService.findOne(reportId);
 
 				List<String> usernames = note.getUsernames();
 				usernames.add(userAccount.getUsername());
@@ -123,30 +107,16 @@ public class NoteHandyWorkerController extends AbstractController {
 				result = this.createEditModelAndView(note, "note.commit.error");
 			}
 		}
+
 		return result;
 	}
 
 	//Comments
 	@RequestMapping(value = "/listComments", method = RequestMethod.GET)
-	public ModelAndView commentList(@RequestParam int noteId, @RequestParam int fixUpTaskId) {
+	public ModelAndView commentList(@RequestParam int noteId, @RequestParam int fixUpTaskId, @RequestParam int complaintId, @RequestParam int reportId) {
 		ModelAndView result;
 
-		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
 		UserAccount userAccount = LoginService.getPrincipal();
-		HandyWorker logguedHandyWorker = this.handyWorkerService.getHandyWorkerByUsername(userAccount.getUsername());
-
-		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
-
-		Boolean isInvolved = false;
-
-		for (Application a : fixUpTaksApplications) {
-			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
-				isInvolved = true;
-			}
-		}
-
-		Assert.isTrue(isInvolved);
-
 		Note note = this.noteService.findOne(noteId);
 
 		Collection<String> comments = note.getOptionalComments();
@@ -162,11 +132,13 @@ public class NoteHandyWorkerController extends AbstractController {
 		result.addObject("username", username);
 		result.addObject("usernames", usernames);
 
+		result = this.isInvolved(fixUpTaskId, complaintId, reportId, noteId, result);
+
 		return result;
 	}
 
 	@RequestMapping(value = "/newComment", method = RequestMethod.GET)
-	public ModelAndView newComment(@RequestParam int noteId, @RequestParam int reportId) {
+	public ModelAndView newComment(@RequestParam int noteId, @RequestParam int reportId, @RequestParam int complaintId, @RequestParam int fixUpTaskId) {
 		ModelAndView result;
 		Note note = this.noteService.findOne(noteId);
 		List<String> usernames = note.getUsernames();
@@ -177,6 +149,9 @@ public class NoteHandyWorkerController extends AbstractController {
 		result = new ModelAndView("handy-worker/addNoteComment");
 		result.addObject("noteId", noteId);
 		result.addObject("reportId", reportId);
+
+		result = this.isInvolved(fixUpTaskId, complaintId, reportId, noteId, result);
+
 		return result;
 	}
 
@@ -228,6 +203,22 @@ public class NoteHandyWorkerController extends AbstractController {
 
 		return result;
 
+	}
+
+	//Security 
+
+	public ModelAndView isInvolved(int fixUpTaskId, int complaintId, int reportId, ModelAndView result) {
+		return this.isInvolved(fixUpTaskId, complaintId, reportId, 0, result);
+	}
+
+	public ModelAndView isInvolved(int fixUpTaskId, int complaintId, int reportId, int noteId, ModelAndView result) {
+		Boolean isInvolved = this.handyWorkerService.isInvolved(fixUpTaskId, complaintId, reportId, noteId);
+
+		if (!isInvolved) {
+			result = new ModelAndView("welcome/index");
+		}
+
+		return result;
 	}
 
 }

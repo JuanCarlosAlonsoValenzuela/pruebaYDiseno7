@@ -1047,15 +1047,6 @@ public class HandyWorkerService {
 		return result;
 	}
 
-	//Test Methods ------------------------------------------
-	public HandyWorker getHandyWorkerByUsername(String username) {
-
-		return this.handyWorkerRepository.getHandyWorkerByUsername(username);
-	}
-	public List<FixUpTask> getFixUpTaskByHandyWorker(HandyWorker handyWorker) {
-
-		return this.handyWorkerRepository.getFixUpTasksFromHandyWorker(handyWorker.getId());
-	}
 	public Collection<Phase> getPhasesByApplication(Application application) {
 		FixUpTask fixUpTask = application.getFixUpTask();
 		UserAccount userAccount = LoginService.getPrincipal();
@@ -1074,6 +1065,126 @@ public class HandyWorkerService {
 		Assert.isTrue(isInvolved);
 
 		return this.handyWorkerRepository.getPhasesByApplication(application.getId());
+	}
+
+	//Security Methods
+
+	public Boolean isInvolved(int fixUpTaskId) {
+		return this.isInvolved(fixUpTaskId, 0, 0, 0);
+	}
+
+	public Boolean isInvolved(int fixUpTaskId, int complaintId) {
+		return this.isInvolved(fixUpTaskId, complaintId, 0, 0);
+	}
+
+	public Boolean isInvolved(int fixUpTaskId, int complaintId, int reportId) {
+		return this.isInvolved(fixUpTaskId, complaintId, reportId, 0);
+	}
+
+	public Boolean isInvolved(int fixUpTaskId, int complaintId, int reportId, int noteId) {
+
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.getHandyWorkerByUsername(userAccount.getUsername());
+
+		FixUpTask fixUpTask = this.fixUpTaskService.findOne(fixUpTaskId);
+
+		List<Application> fixUpTaksApplications = (List<Application>) fixUpTask.getApplications();
+
+		Boolean isInvolved = false;
+
+		for (Application a : fixUpTaksApplications) {
+			if (a.getHandyWorker().equals(logguedHandyWorker) && a.getStatus().toString() == "ACCEPTED") {
+				isInvolved = true;
+				break;
+			}
+		}
+
+		//Comprobamos que la complaint pertenece a la fixUpTask
+		if (complaintId != 0) {
+			isInvolved = false;
+			List<Complaint> fixUpTaskComplaint = (List<Complaint>) fixUpTask.getComplaints();
+			Complaint complaint = this.complaintService.findOne(complaintId);
+			for (Complaint c : fixUpTaskComplaint) {
+				if (c.equals(complaint)) {
+					isInvolved = true;
+					break;
+				}
+			}
+			//Comprobamos que el report pertenece a la complaint
+			if (reportId != 0) {
+				isInvolved = false;
+				List<Report> complaintReports = complaint.getReports();
+				Report report = this.reportService.findOne(reportId);
+				for (Report r : complaintReports) {
+					if (r.equals(report)) {
+						isInvolved = true;
+						break;
+					}
+				}
+				//Comprobamos que la nota pertenece al report
+				if (noteId != 0) {
+					isInvolved = false;
+					List<Note> reportNotes = report.getNotes();
+					Note note = this.noteService.findOne(noteId);
+					for (Note n : reportNotes) {
+						if (n.equals(note)) {
+							isInvolved = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return isInvolved;
+
+	}
+	public Boolean isInvolvedPhase(int applicationId) {
+		return this.isInvolvedPhase(applicationId, 0);
+	}
+
+	public Boolean isInvolvedPhase(int applicationId, int phaseId) {
+		UserAccount userAccount = LoginService.getPrincipal();
+		HandyWorker logguedHandyWorker = this.getHandyWorkerByUsername(userAccount.getUsername());
+
+		Boolean isInvolved = false;
+
+		List<Application> handyWorkerApplication = logguedHandyWorker.getApplications();
+
+		Application application = this.applicationService.findOne(applicationId);
+
+		for (Application a : handyWorkerApplication) {
+			if (a.equals(application)) {
+				isInvolved = true;
+				break;
+			}
+		}
+
+		//Comprobamos que la phase pertenece a la application
+		if (phaseId != 0) {
+			isInvolved = false;
+			List<Phase> applicationPhases = (List<Phase>) application.getFixUpTask().getPhases();
+			FixUpTask fixUpTask = application.getFixUpTask();
+			Phase phase = this.phaseService.findOne(phaseId);
+			for (Phase p : applicationPhases) {
+				if (p.equals(phase)) {
+					isInvolved = true;
+					break;
+				}
+			}
+		}
+
+		return isInvolved;
+	}
+
+	//Test Methods ------------------------------------------
+	public HandyWorker getHandyWorkerByUsername(String username) {
+
+		return this.handyWorkerRepository.getHandyWorkerByUsername(username);
+	}
+	public List<FixUpTask> getFixUpTaskByHandyWorker(HandyWorker handyWorker) {
+
+		return this.handyWorkerRepository.getFixUpTasksFromHandyWorker(handyWorker.getId());
 	}
 	public List<Customer> getCustomersByHandyWorker(HandyWorker handyWorker) {
 		return this.handyWorkerRepository.getCustomersFromHandyWorker(handyWorker.getId());
